@@ -421,9 +421,7 @@ void init(void)
 	tm = GenerateTerrain(&ttex);
 	printError("init terrain");
 
-// Load Sphere
 
-	m = LoadModelPlus("groundsphere.obj");
 
 }
 
@@ -536,19 +534,7 @@ void display(void)
 
 	translate=  T(gx, findHeight(gx, gz, &ttex), gz);
 	total = Mult(modelView, translate);
-	glUniformMatrix4fv(glGetUniformLocation(program, "mdlMatrix"), 1, GL_TRUE, total.m);
-	
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, tex3);
-	glActiveTexture(GL_TEXTURE2);
-	glBindTexture(GL_TEXTURE_2D, tex3);
-	glUniform1i(glGetUniformLocation(program, "tex1"), 1);
-	glUniform1i(glGetUniformLocation(program, "tex2"), 2);
-	DrawModel(m, program, "inPosition", "inNormal", "inTexCoord");
 
-
-	printError("display 2");
-	
 	glutSwapBuffers();
 
 }
