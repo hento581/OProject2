@@ -80,6 +80,7 @@
     <ClCompile Include="GL_utilities.cpp" />
     <ClCompile Include="loadobj.cpp" />
     <ClCompile Include="LoadTGA2.cpp" />
+    <ClCompile Include="Player.cpp" />
     <ClCompile Include="Starter.cpp" />
     <ClCompile Include="VectorUtils3.cpp" />
   </ItemGroup>
@@ -87,6 +88,7 @@
     <ClInclude Include="GL_utilities.h" />
     <ClInclude Include="loadobj.h" />
     <ClInclude Include="LoadTGA2.h" />
+    <ClInclude Include="Player.h" />
     <ClInclude Include="VectorUtils3.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
