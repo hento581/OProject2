@@ -242,6 +242,7 @@ int insideTriangle(Point3D P, Point3D A, Point3D B, Point3D C)
 	return 0;
 } 
 
+
 GLfloat findHeight(GLfloat x, GLfloat z,TextureData *tex)
 {
 	int x1, z1, x2, z2;
