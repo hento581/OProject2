@@ -32,7 +32,7 @@ GLfloat jump = 0.0;
 //För gravitation
 GLfloat lastHeight = -999.0;
 GLfloat gravSpeed = 0.3;
-GLfloat gravitation = 0.0982/400.0;
+GLfloat gravitation = 0.0982/100.0;
 GLfloat inAirTime = 0.0;
 bool inAir = false;
 
