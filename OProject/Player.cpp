@@ -26,7 +26,8 @@ void Player::zUpdate(void)
 mat4 Player::getCamMatrix(void)
 {
 	Point3D up = vec3(0.0f, 1.0f, 0.0f);
-	return lookAtv(this->pos, this->look, up);
+	Point3D camDiff = vec3(0.0f, 0.0f, 2.0f);
+	return lookAtv(VectorAdd(camDiff, this->pos), VectorAdd(camDiff, this->pos), up);
 }
 
 void Player::goForward(void)
@@ -36,6 +37,6 @@ void Player::goForward(void)
 	temp = ScalarMult(temp, 0.3f);
 	this->pos = VectorAdd(temp, this->pos);
 	this->look = VectorAdd(temp, this->pos);
-	//this->pos.z = world->findHeigth(this->pos);
+	//this->pos.z = world->findHeigth(this->pos.x,this->pos.x);
 }
 
