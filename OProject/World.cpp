@@ -6,7 +6,7 @@ World::World(void)
 {
 }
 
-World(TextureData* texture){
+World::World(TextureData* texture){
 
 	this->tex=texture;
 
@@ -17,8 +17,7 @@ World::~World(void)
 {
 }
 
-Point3D findNormal(int x, int z, GLfloat *vertexArray, TextureData *tex)
-{
+/*
 	Point3D edge=vec3(0,1,0);
 	Point3D p0 = vec3(x,vertexArray[(x + z * tex->width)*3 + 1], z);
 	Point3D p1,p2,p3;
@@ -120,9 +119,9 @@ Model* GenerateTerrain(TextureData *tex)
 	return model;
 }
 
-GLfloat interpolate(Point3D P, Point3D A, Point3D B, Point3D C,TextureData *tex)
+GLfloat interpolate(Point3D P, Point3D A, Point3D B, Point3D C)
 {
-	Point3D N,N1,N2;
+	/*Point3D N,N1,N2;
 	int Ax = A.x;
 	int Az = A.z;
 	int Bx = B.x;
@@ -142,7 +141,7 @@ GLfloat interpolate(Point3D P, Point3D A, Point3D B, Point3D C,TextureData *tex)
 	if(N.y == 0)
 	return 100;
 
-	return A.y - (N.x*(P.x - A.x) + N.z*(P.z-A.z))/N.y;
+	//return A.y - (N.x*(P.x - A.x) + N.z*(P.z-A.z))/N.y;
 } 
 
 int insideTriangle(Point3D P, Point3D A, Point3D B, Point3D C)
@@ -209,6 +208,6 @@ GLfloat findHeight(GLfloat x, GLfloat z,TextureData *tex)
 	return 500;
 	}
 
-	return interpolate(P,A,B,C,&ttex);
+	return interpolate(P,A,B,C);
 
-}
+}*/

@@ -4,6 +4,7 @@
 #include <GL/freeglut.h> 
 
 #include "VectorUtils3.h"
+#include "World.h"
 
 class Player
 {
@@ -22,6 +23,6 @@ public:
 	mat4 getCamMatrix(void);
 
 	void goForward(void);
-	void 
+	 
 };
 
