@@ -6,6 +6,7 @@
 #include "loadobj.h"
 #include "LoadTGA2.h"
 #include "VectorUtils3.h"
+#include "Player.h"
 
 
 #define near 1.0
@@ -56,6 +57,9 @@ GLfloat oldx = 0;
 GLfloat oldy = 0;
 GLfloat gx = 10;
 GLfloat gz = 10;
+
+//Skapa spelare
+Player player = Player(p,l);
 
 GLuint program;
 
