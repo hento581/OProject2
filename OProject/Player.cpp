@@ -49,8 +49,11 @@ mat4 Player::getCamMatrix(void)
 void Player::goForward(void)
 {
 	Point3D move = VectorSub(this->look, this->pos);
+	Point3D normal = w->findNormal(pos.x,pos.z,w->getModel()->vertexArray);
 	move.y = 0;
-	move = ScalarMult(Normalize(move), 0.2f); //TODO: set variable instead of numerica value
+	move= Normalize(move);
+	move = VectorAdd(move,ScalarMult(move,DotProduct(move,normal)));
+	move = ScalarMult(move, 0.2f); //TODO: set variable instead of numerica value
 	pos = VectorAdd(move, pos);
 	look = VectorAdd(move, look);
 }

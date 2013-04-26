@@ -100,7 +100,7 @@ Model* World::GenerateTerrain()
 	
 	// Create Model and upload to GPU:
 
-	Model* model = LoadDataToModel(
+	m = LoadDataToModel(
 			vertexArray,
 			normalArray,
 			texCoordArray,
@@ -109,7 +109,7 @@ Model* World::GenerateTerrain()
 			vertexCount,
 			triangleCount*3);
 
-	return model;
+	return m;
 }
 
 GLfloat World::interpolate(Point3D P, Point3D A, Point3D B, Point3D C)

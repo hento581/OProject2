@@ -11,10 +11,12 @@ class World
 {
 private:
 	TextureData* tex;
+	Model* m;
 public:
 	World(void);
 	World(TextureData*);
 	~World(void);
+	Model* getModel(void){return m;}
 	TextureData* getTex(void){return tex;}
 	Point3D findNormal(int, int, GLfloat*);
 	Model* GenerateTerrain();
