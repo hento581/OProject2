@@ -35,7 +35,7 @@ void Player::heightUpdate(void)
 
 void Player::jump(void)
 {
-	if(pos.y == w->findHeight(pos.x,pos.z))
+	if(pos.y - w->findHeight(pos.x,pos.z) <0.1 && pos.y - w->findHeight(pos.x,pos.z) >-0.1)
 		yspeed = 0.2f;
 }
 
@@ -48,14 +48,18 @@ mat4 Player::getCamMatrix(void)
 
 void Player::goForward(void)
 {
-	Point3D move = ScalarMult(Normalize(VectorSub(this->look, this->pos)), 0.3f);
+	Point3D move = VectorSub(this->look, this->pos);
+	move.y = 0;
+	move = ScalarMult(Normalize(move), 0.2f); //TODO: set variable instead of numerica value
 	pos = VectorAdd(move, pos);
 	look = VectorAdd(move, look);
 }
 
 void Player::goBackwards(void)
 {
-	Point3D move = ScalarMult( Normalize(VectorSub(this->pos, this->look)), 0.3f);
+	Point3D move = VectorSub(this->pos, this->look);
+	move.y = 0;
+	move = ScalarMult(Normalize(move), 0.2f);
 	this->pos = VectorAdd(move, this->pos);
 	this->look = VectorAdd(move, this->look);
 }

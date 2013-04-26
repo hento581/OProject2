@@ -174,8 +174,8 @@ void init(void)
 
 	GLenum err = glewInit();
 
-	//glutReshapeWindow(screenX,screenY);
-	glutFullScreen();
+	glutReshapeWindow(screenX,screenY);
+	//glutFullScreen();
 	glutSetCursor(GLUT_CURSOR_NONE);
 
 
@@ -230,8 +230,8 @@ void display(void)
 
 	
 	player->heightUpdate();
-	/*
-	if(aIsDown) //TODO: Ta bort?
+	
+	/*if(aIsDown) //TODO: Ta bort?
 	{
 			temp = VectorSub(p, l);	
 			temp = CrossProduct(temp, camUp); 
