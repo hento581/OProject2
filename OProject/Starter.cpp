@@ -224,6 +224,7 @@ void display(void)
 	{
 			player->goBackwards();
 	}
+	player->heightUpdate();
 	/*
 	if(aIsDown) //TODO: Ta bort?
 	{

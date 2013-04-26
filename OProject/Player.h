@@ -11,7 +11,7 @@ class Player
 private:
 	Point3D pos;
 	Point3D look;
-	GLfloat zspeed;
+	GLfloat yspeed;
 	World* w;
 
 public:
@@ -22,7 +22,7 @@ public:
 	Point3D getLook(void){return look;}
 	void setLook(Point3D l){look = l;}
 	void setPos(Point3D p){pos = p;}
-	void zUpdate(void);
+	void heightUpdate(void);
 	mat4 getCamMatrix(void);
 	void mouseLook(GLfloat,GLfloat);
 
