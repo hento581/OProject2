@@ -20,9 +20,23 @@ Player::~Player(void)
 void Player::heightUpdate(void)
 {
 	// this->zspeed = this->zspeed - T*g; //TODO: fixa konstanter samt kollisionshantering med mark.
-	
-	look.y = look.y - pos.y + w->findHeight(pos.x,pos.z);
-	pos.y = w->findHeight(pos.x,pos.z); 
+	pos.y = pos.y + yspeed;
+	look.y = look.y + yspeed;
+	if(pos.y > w->findHeight(pos.x,pos.z))
+		yspeed = yspeed - 0.01;
+
+	if(pos.y <= w->findHeight(pos.x,pos.z))
+	{
+		look.y = look.y - pos.y + w->findHeight(pos.x,pos.z);
+		pos.y = w->findHeight(pos.x,pos.z);
+		yspeed = 0;
+	}
+}
+
+void Player::jump(void)
+{
+	if(pos.y == w->findHeight(pos.x,pos.z))
+		yspeed = 0.2f;
 }
 
 mat4 Player::getCamMatrix(void)
@@ -43,8 +57,7 @@ void Player::goBackwards(void)
 {
 	Point3D move = ScalarMult( Normalize(VectorSub(this->pos, this->look)), 0.3f);
 	this->pos = VectorAdd(move, this->pos);
-	this->look = VectorAdd(move, this->pos);
-	this->pos.y = w->findHeight(this->pos.x,this->pos.z);
+	this->look = VectorAdd(move, this->look);
 }
 
 void Player::mouseLook(GLfloat xdiff,GLfloat ydiff)

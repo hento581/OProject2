@@ -27,6 +27,7 @@ public:
 	void mouseLook(GLfloat,GLfloat);
 
 	void goForward(void);
+	void jump(void);
 	void goBackwards(void);
 };
 

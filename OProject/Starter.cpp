@@ -100,10 +100,6 @@ void keyboardFunction (unsigned char key, int xmouse, int ymouse)
 		break;
 		case ' ':
 			jumping = true;
-			if(!inAir){
-				inAir =true;
-				inAirTime=0.0;
-			}
 		break;
 		default:
          break;
@@ -126,6 +122,9 @@ void keyboardUpFunction (unsigned char key, int xmouse, int ymouse)
 		break;
 		case 'd':
 			dIsDown = false;
+		break;
+		case ' ':
+			jumping = false;
 		break; 
 		default:
          break;
@@ -224,6 +223,12 @@ void display(void)
 	{
 			player->goBackwards();
 	}
+	if(jumping)
+	{
+			player->jump();
+	}
+
+	
 	player->heightUpdate();
 	/*
 	if(aIsDown) //TODO: Ta bort?
@@ -319,7 +324,7 @@ void display(void)
 void timer(int i)
 {
 	glutTimerFunc(20, &timer, i);
-	if(jumping){
+	/*if(jumping){
 		if(jumpTime<maxJumpTime){
 			jumpTime+=1.0;
 		}
@@ -327,7 +332,7 @@ void timer(int i)
 			jumping=false;
 			jumpTime=0.0;
 		}
-	}
+	}*/
 	inAirTime+=1.0;
 	glutPostRedisplay();
 }
