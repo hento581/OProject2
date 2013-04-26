@@ -39,17 +39,12 @@ Point3D World::findNormal(int x, int z, GLfloat *vertexArray)
 	v1 = VectorSub(p1,p0);
 	v2 = VectorSub(p2,p0);
 	v3 = VectorSub(p3,p0);
-
 	
 	Point3D Nres,N1,N2,N3;
 
-	N1 = CrossProduct(v2,v1);
-	N2 = CrossProduct(v3,v2);
-	N3 = CrossProduct(v1,v3);
-
-	N1 = Normalize(N1);
-	N2 = Normalize(N2);
-	N3 = Normalize(N3);
+	N1 = Normalize(CrossProduct(v2,v1));
+	N2 = Normalize(CrossProduct(v3,v2));
+	N3 = Normalize(CrossProduct(v1,v3));
 
 	Nres = VectorAdd(N1,N2);
 	Nres = VectorAdd(N3,Nres);
@@ -65,14 +60,11 @@ Model* World::GenerateTerrain()
 	int triangleCount = (this->tex->width-1) * (this->tex->height-1) * 2;
 	int x, z;
 	
-
-	
 	GLfloat *vertexArray = (GLfloat*)malloc(sizeof(GLfloat) * 3 * vertexCount);
 	GLfloat *normalArray = (GLfloat*)malloc(sizeof(GLfloat) * 3 * vertexCount);
 	GLfloat *texCoordArray = (GLfloat*)malloc(sizeof(GLfloat) * 2 * vertexCount);
 	GLuint *indexArray = (GLuint*)malloc(sizeof(GLuint) * triangleCount*3);
 	
-	printf("bpp %d\n", tex->bpp);
 	for (x = 0; x < tex->width; x++)
 		for (z = 0; z < tex->height; z++)
 		{
@@ -153,7 +145,6 @@ int World::insideTriangle(Point3D P, Point3D A, Point3D B, Point3D C)
 	v1 = VectorSub(B, A);
 	v2 = VectorSub(P, A);
 
-
 	// Compute dot products
 	GLfloat  dot00 = DotProduct(v0, v0);
 	GLfloat  dot01 = DotProduct(v0, v1);
@@ -206,7 +197,7 @@ GLfloat World::findHeight(GLfloat x, GLfloat z)
 	}
 	else
 	{
-	return 500;
+		return 500; //TODO: better error handling
 	}
 
 	return this->interpolate(P,A,B,C);
