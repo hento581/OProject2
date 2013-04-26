@@ -16,10 +16,10 @@ public:
 	World(TextureData*);
 	~World(void);
 
-/*	Point3D findNormal(int, int, GLfloat* , TextureData*);
-	Model* GenerateTerrain(TextureData*);
-	GLfloat interpolate(Point3D, Point3D, Point3D, Point3D,TextureData*);
+	Point3D findNormal(int, int, GLfloat*);
+	Model* GenerateTerrain();
+	GLfloat interpolate(Point3D, Point3D, Point3D, Point3D);
 	int insideTriangle(Point3D, Point3D, Point3D, Point3D);
-	GLfloat findHeight(GLfloat, GLfloat,TextureData*); */
+	GLfloat findHeight(GLfloat, GLfloat); 
 };
 

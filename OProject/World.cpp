@@ -17,20 +17,21 @@ World::~World(void)
 {
 }
 
-/*
+Point3D World::findNormal(int x, int z, GLfloat *vertexArray)
+{
 	Point3D edge=vec3(0,1,0);
-	Point3D p0 = vec3(x,vertexArray[(x + z * tex->width)*3 + 1], z);
+	Point3D p0 = vec3(x,vertexArray[(x + z * this->tex->width)*3 + 1], z);
 	Point3D p1,p2,p3;
 
 	if(x > 0)
-		p1= SetVector(x-1, vertexArray[(x-1 + z * tex->width)*3 + 1], z);
+		p1= SetVector(x-1, vertexArray[(x-1 + z * this->tex->width)*3 + 1], z);
 	else 
 		return edge;
 
 	if(z > 0)
 	{
-		p2 = SetVector(x-1, vertexArray[(x-1 + (z-1) * tex->width)*3 + 1], z-1);
-		p3 = SetVector(x, vertexArray[(x + (z-1) * tex->width)*3 + 1], z-1);
+		p2 = SetVector(x-1, vertexArray[(x-1 + (z-1) * this->tex->width)*3 + 1], z-1);
+		p3 = SetVector(x, vertexArray[(x + (z-1) * this->tex->width)*3 + 1], z-1);
 	}
 	else 
 		return edge;
@@ -58,10 +59,10 @@ World::~World(void)
 	return Nres;
 }
 
-Model* GenerateTerrain(TextureData *tex)
+Model* World::GenerateTerrain()
 {
-	int vertexCount = tex->width * tex->height;
-	int triangleCount = (tex->width-1) * (tex->height-1) * 2;
+	int vertexCount = this->tex->width * this->tex->height;
+	int triangleCount = (this->tex->width-1) * (this->tex->height-1) * 2;
 	int x, z;
 	
 
@@ -76,31 +77,31 @@ Model* GenerateTerrain(TextureData *tex)
 		for (z = 0; z < tex->height; z++)
 		{
 // Vertex array. You need to scale this properly
-			vertexArray[(x + z * tex->width)*3 + 0] = x / 1.0;
-			vertexArray[(x + z * tex->width)*3 + 1] = tex->imageData[(x + z * tex->width) * (tex->bpp/8)] / 10.0;
-			vertexArray[(x + z * tex->width)*3 + 2] = z / 1.0;
+			vertexArray[(x + z * this->tex->width)*3 + 0] = x / 1.0;
+			vertexArray[(x + z * this->tex->width)*3 + 1] = this->tex->imageData[(x + z * this->tex->width) * (this->tex->bpp/8)] / 10.0;
+			vertexArray[(x + z * this->tex->width)*3 + 2] = z / 1.0;
 // Normal vectors. You need to calculate these.
 
-			Point3D normal = findNormal(x,z,vertexArray,tex); 
-			normalArray[(x + z * tex->width)*3 + 0] = normal.x;
-			normalArray[(x + z * tex->width)*3 + 1] = normal.y;
-			normalArray[(x + z * tex->width)*3 + 2] = normal.z;
+			Point3D normal = findNormal(x,z,vertexArray); 
+			normalArray[(x + z * this->tex->width)*3 + 0] = normal.x;
+			normalArray[(x + z * this->tex->width)*3 + 1] = normal.y;
+			normalArray[(x + z * this->tex->width)*3 + 2] = normal.z;
 
 // Texture coordinates. You may want to scale them.
-			texCoordArray[(x + z * tex->width)*2 + 0] = x/10.0; // (float)x / tex->width;
-			texCoordArray[(x + z * tex->width)*2 + 1] = z/10.0; // (float)z / tex->height;
+			texCoordArray[(x + z * this->tex->width)*2 + 0] = x/10.0; // (float)x / tex->width;
+			texCoordArray[(x + z * this->tex->width)*2 + 1] = z/10.0; // (float)z / tex->height;
 		}
-	for (x = 0; x < tex->width-1; x++)
-		for (z = 0; z < tex->height-1; z++)
+	for (x = 0; x < this->tex->width-1; x++)
+		for (z = 0; z < this->tex->height-1; z++)
 		{
 		// Triangle 1
-			indexArray[(x + z * (tex->width-1))*6 + 0] = x + z * tex->width;
-			indexArray[(x + z * (tex->width-1))*6 + 1] = x + (z+1) * tex->width;
-			indexArray[(x + z * (tex->width-1))*6 + 2] = x+1 + z * tex->width;
+			indexArray[(x + z * (this->tex->width-1))*6 + 0] = x + z * this->tex->width;
+			indexArray[(x + z * (this->tex->width-1))*6 + 1] = x + (z+1) * this->tex->width;
+			indexArray[(x + z * (this->tex->width-1))*6 + 2] = x+1 + z * this->tex->width;
 		// Triangle 2
-			indexArray[(x + z * (tex->width-1))*6 + 3] = x+1 + z * tex->width;
-			indexArray[(x + z * (tex->width-1))*6 + 4] = x + (z+1) * tex->width;
-			indexArray[(x + z * (tex->width-1))*6 + 5] = x+1 + (z+1) * tex->width;
+			indexArray[(x + z * (this->tex->width-1))*6 + 3] = x+1 + z * this->tex->width;
+			indexArray[(x + z * (this->tex->width-1))*6 + 4] = x + (z+1) * this->tex->width;
+			indexArray[(x + z * (this->tex->width-1))*6 + 5] = x+1 + (z+1) * this->tex->width;
 		}
 	
 	// End of terrain generation
@@ -119,9 +120,9 @@ Model* GenerateTerrain(TextureData *tex)
 	return model;
 }
 
-GLfloat interpolate(Point3D P, Point3D A, Point3D B, Point3D C)
+GLfloat World::interpolate(Point3D P, Point3D A, Point3D B, Point3D C)
 {
-	/*Point3D N,N1,N2;
+	Point3D N,N1,N2;
 	int Ax = A.x;
 	int Az = A.z;
 	int Bx = B.x;
@@ -130,9 +131,9 @@ GLfloat interpolate(Point3D P, Point3D A, Point3D B, Point3D C)
 	int Cz = C.z;
 
 
-	A.y = tex->imageData[(Ax + Az * tex->width) * (tex->bpp/8)] / 10.0;
-	B.y = tex->imageData[(Bx + Bz * tex->width) * (tex->bpp/8)] / 10.0;
-	C.y = tex->imageData[(Cx + Cz * tex->width) * (tex->bpp/8)] / 10.0;
+	A.y = this->tex->imageData[(Ax + Az * this->tex->width) * (this->tex->bpp/8)] / 10.0;
+	B.y = this->tex->imageData[(Bx + Bz * this->tex->width) * (this->tex->bpp/8)] / 10.0;
+	C.y = this->tex->imageData[(Cx + Cz * this->tex->width) * (this->tex->bpp/8)] / 10.0;
 
 	N1 = VectorSub(C, A);
 	N2 = VectorSub(B, A);
@@ -144,7 +145,7 @@ GLfloat interpolate(Point3D P, Point3D A, Point3D B, Point3D C)
 	//return A.y - (N.x*(P.x - A.x) + N.z*(P.z-A.z))/N.y;
 } 
 
-int insideTriangle(Point3D P, Point3D A, Point3D B, Point3D C)
+int World::insideTriangle(Point3D P, Point3D A, Point3D B, Point3D C)
 {
 	Point3D v0,v1,v2; 
 
@@ -171,7 +172,7 @@ int insideTriangle(Point3D P, Point3D A, Point3D B, Point3D C)
 	return 0;
 } 
 
-GLfloat findHeight(GLfloat x, GLfloat z,TextureData *tex)
+GLfloat World::findHeight(GLfloat x, GLfloat z)
 {
 	int x1, z1, x2, z2;
 	x1 = x;
@@ -210,4 +211,4 @@ GLfloat findHeight(GLfloat x, GLfloat z,TextureData *tex)
 
 	return interpolate(P,A,B,C);
 
-}*/
+}
