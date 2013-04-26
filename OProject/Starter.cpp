@@ -219,6 +219,8 @@ void display(void)
 	{
 		player->goForward();
 	}
+	else
+		player->stop();
 	if(sIsDown)
 	{
 			player->goBackwards();

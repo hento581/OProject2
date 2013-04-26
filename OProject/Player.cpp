@@ -11,6 +11,7 @@ Player::Player(Point3D p, Point3D l, World* world)
 	this->pos = p;
 	this->look = l;
 	this->w = world;
+	oldSpeed= vec3(0,0,0);
 }
 
 Player::~Player(void)
@@ -23,7 +24,11 @@ void Player::heightUpdate(void)
 	pos.y = pos.y + yspeed;
 	look.y = look.y + yspeed;
 	if(pos.y > w->findHeight(pos.x,pos.z))
-		yspeed = yspeed - 0.01;
+	{
+		pos = VectorAdd(oldSpeed, pos);
+		look = VectorAdd(oldSpeed, look);
+		yspeed = yspeed - 0.02;
+	}
 
 	if(pos.y <= w->findHeight(pos.x,pos.z))
 	{
@@ -35,8 +40,8 @@ void Player::heightUpdate(void)
 
 void Player::jump(void)
 {
-	if(pos.y - w->findHeight(pos.x,pos.z) <0.1 && pos.y - w->findHeight(pos.x,pos.z) >-0.1)
-		yspeed = 0.2f;
+	if(pos.y - w->findHeight(pos.x,pos.z) <0.2 && pos.y - w->findHeight(pos.x,pos.z) >-0.2)
+		yspeed = 0.3f;
 }
 
 mat4 Player::getCamMatrix(void)
@@ -48,14 +53,26 @@ mat4 Player::getCamMatrix(void)
 
 void Player::goForward(void)
 {
-	Point3D move = VectorSub(this->look, this->pos);
-	Point3D normal = w->findNormal(pos.x,pos.z,w->getModel()->vertexArray);
-	move.y = 0;
-	move= Normalize(move);
-	move = VectorAdd(move,ScalarMult(move,DotProduct(move,normal)));
-	move = ScalarMult(move, 0.2f); //TODO: set variable instead of numerica value
-	pos = VectorAdd(move, pos);
-	look = VectorAdd(move, look);
+	if(pos.y - w->findHeight(pos.x,pos.z) <0.1 && pos.y - w->findHeight(pos.x,pos.z) >-0.1)
+	{
+		Point3D move = VectorSub(this->look, this->pos);
+		Point3D normal = w->findNormal(pos.x,pos.z,w->getModel()->vertexArray);
+		move.y = 0;
+		move= Normalize(move);
+		move = VectorAdd(move,ScalarMult(move, DotProduct(move,normal)*abs(DotProduct(move,normal))));
+		GLfloat speed = (0.15*19+Norm(oldSpeed))*0.05;
+		move = ScalarMult(move, speed); //TODO: set variable instead of numerica value
+		oldSpeed = move;
+		pos = VectorAdd(move, pos);
+		look = VectorAdd(move, look);
+	}
+}
+void Player::stop(void)
+{
+	if(pos.y - w->findHeight(pos.x,pos.z) <0.1 && pos.y - w->findHeight(pos.x,pos.z) >-0.1)
+	{
+		oldSpeed = vec3(0,0,0);
+	}
 }
 
 void Player::goBackwards(void)

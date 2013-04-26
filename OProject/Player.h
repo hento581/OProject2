@@ -12,6 +12,7 @@ private:
 	Point3D pos;
 	Point3D look;
 	GLfloat yspeed;
+	Point3D oldSpeed;
 	World* w;
 
 public:
@@ -29,5 +30,6 @@ public:
 	void goForward(void);
 	void jump(void);
 	void goBackwards(void);
+	void stop(void);
 };
 
