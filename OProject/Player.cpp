@@ -1,4 +1,5 @@
 #include "Player.h"
+#include "World.h"
 
 
 Player::Player(void)
@@ -37,6 +38,6 @@ void Player::goForward(void)
 	temp = ScalarMult(temp, 0.3f);
 	this->pos = VectorAdd(temp, this->pos);
 	this->look = VectorAdd(temp, this->pos);
-	//this->pos.z = world->findHeigth(this->pos.x,this->pos.x);
+	this->pos.z = w->findHeight(this->pos.x,this->pos.x);
 }
 

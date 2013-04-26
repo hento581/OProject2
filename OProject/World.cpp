@@ -82,7 +82,7 @@ Model* World::GenerateTerrain()
 			vertexArray[(x + z * this->tex->width)*3 + 2] = z / 1.0;
 // Normal vectors. You need to calculate these.
 
-			Point3D normal = findNormal(x,z,vertexArray); 
+			Point3D normal = this->findNormal(x,z,vertexArray); 
 			normalArray[(x + z * this->tex->width)*3 + 0] = normal.x;
 			normalArray[(x + z * this->tex->width)*3 + 1] = normal.y;
 			normalArray[(x + z * this->tex->width)*3 + 2] = normal.z;

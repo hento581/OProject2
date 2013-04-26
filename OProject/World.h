@@ -15,7 +15,7 @@ public:
 	World(void);
 	World(TextureData*);
 	~World(void);
-
+	TextureData* getTex(void){return tex;}
 	Point3D findNormal(int, int, GLfloat*);
 	Model* GenerateTerrain();
 	GLfloat interpolate(Point3D, Point3D, Point3D, Point3D);
