@@ -184,48 +184,6 @@ int insideTriangle(Point3D P, Point3D A, Point3D B, Point3D C)
 } 
 
 
-GLfloat findHeight(GLfloat x, GLfloat z,TextureData *tex)
-{
-	int x1, z1, x2, z2;
-	x1 = x;
-	x2 = x1+1;
-	z1 = z;
-	z2 = z1+1;
-
-	Point3D P = vec3(x, 0, z);
-
-	Point3D A,B,C;
-
-	Point3D A1 = vec3(x1, 0, z1);
-	Point3D B1 = vec3(x1, 0, z2);
-	Point3D C1 = vec3(x2, 0, z1);
-
-	Point3D A2 = vec3(x1, 0, z2);
-	Point3D B2 = vec3(x2, 0, z1);
-	Point3D C2 = vec3(x2, 0, z2);
-
-	if(insideTriangle(P, A1, B1, C1))
-	{
-		A=A1;
-		B=B1;
-		C=C1;
-	}
-	else if(insideTriangle(P, A2, B2, C2))
-	{
-		A=A2;
-		B=B2;
-		C=C2;
-	}
-	else
-	{
-	return 500;
-	}
-
-	return interpolate(P,A,B,C,&ttex);
-
-}
-
-
 void keyboardFunction (unsigned char key, int xmouse, int ymouse)
 {	
 	switch (key){
@@ -405,11 +363,11 @@ void display(void)
 	}
 
 	if(lastHeight == -999.0){
-		l.y = l.y - p.y + findHeight(p.x,p.z, &ttex) + 2.0;
-		p.y = findHeight(p.x,p.z, &ttex) + 2.0;
+		l.y = l.y - p.y + world->findHeight(p.x,p.z) + 2.0;
+		p.y = world->findHeight(p.x,p.z) + 2.0;
 		lastHeight = p.y;
 	}
-	GLfloat groundHeight = findHeight(p.x,p.z, &ttex) + 2.0;
+	GLfloat groundHeight = world->findHeight(p.x,p.z) + 2.0;
 	GLfloat newHeight = lastHeight;
 	if(newHeight > groundHeight && !inAir){
 		inAirTime = 0.0;
@@ -473,7 +431,7 @@ void display(void)
 	
 	
 
-	translate=  T(gx, findHeight(gx, gz, &ttex), gz);
+	translate=  T(gx, world->findHeight(gx, gz), gz);
 	total = Mult(modelView, translate);
 
 	glutSwapBuffers();

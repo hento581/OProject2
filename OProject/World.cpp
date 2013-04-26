@@ -142,7 +142,7 @@ GLfloat World::interpolate(Point3D P, Point3D A, Point3D B, Point3D C)
 	if(N.y == 0)
 	return 100;
 
-	//return A.y - (N.x*(P.x - A.x) + N.z*(P.z-A.z))/N.y;
+	return A.y - (N.x*(P.x - A.x) + N.z*(P.z-A.z))/N.y;
 } 
 
 int World::insideTriangle(Point3D P, Point3D A, Point3D B, Point3D C)
@@ -209,6 +209,6 @@ GLfloat World::findHeight(GLfloat x, GLfloat z)
 	return 500;
 	}
 
-	return interpolate(P,A,B,C);
+	return this->interpolate(P,A,B,C);
 
 }
