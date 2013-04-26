@@ -59,9 +59,12 @@ void Player::goForward(void)
 		Point3D normal = w->findNormal(pos.x,pos.z,w->getModel()->vertexArray);
 		move.y = 0;
 		move= Normalize(move);
+		GLfloat temp = DotProduct(move,normal);
+		printf("%f", temp);
+		printf(" ");
 		move = VectorAdd(move,ScalarMult(move, DotProduct(move,normal)*abs(DotProduct(move,normal))));
-		GLfloat speed = (0.15*19+Norm(oldSpeed))*0.05;
-		move = ScalarMult(move, speed); //TODO: set variable instead of numerica value
+		GLfloat speed = 0.2*(Norm(move)+4*Norm(oldSpeed))*0.2;  //TODO: fix speed!
+		move = ScalarMult(Normalize(move), speed); //TODO: set variable instead of numerica value
 		oldSpeed = move;
 		pos = VectorAdd(move, pos);
 		look = VectorAdd(move, look);
