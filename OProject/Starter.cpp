@@ -19,8 +19,6 @@
 
 mat4 projectionMatrix;
 
-mat4 camMatrix;
-
 //För keyboard
 bool wIsDown = false;
 bool sIsDown = false;
@@ -60,7 +58,7 @@ GLfloat gx = 10;
 GLfloat gz = 10;
 
 //Skapa spelare
-Player player = Player(p,l);
+Player* player = new Player;
 
 //Skpa world
 World* world = new World;
@@ -163,18 +161,9 @@ void mouse(int x, int y)
 	GLfloat  relY = (screenY/2 - y)/screenY;
 	GLfloat xdiff = relX;
 	GLfloat ydiff = -relY;
-	temp = VectorSub(l, p);
-	temp2 = CrossProduct(camUp, temp);
-	temp3 = CrossProduct(temp2, temp);
-	temp = Normalize(temp); //vector till "synplanet"
-	temp2 = Normalize(temp2); //vector till höger i synplanet
-	temp3 = Normalize(temp3); //vector uppåt i synplanet
-	temp2 = ScalarMult(temp2, xdiff);
-	temp3 = ScalarMult(temp3, ydiff);
-	l = VectorAdd(p, temp);
-	l = VectorAdd(l, temp2);
-	l = VectorAdd(l, temp3);
-
+	
+	player->mouseLook(xdiff,ydiff);		
+	
 	if(relX != 0 || relY != 0)
 	glutWarpPointer(screenX/2,screenY/2);
 	
@@ -187,11 +176,9 @@ void init(void)
 	GLenum err = glewInit();
 
 	//glutReshapeWindow(screenX,screenY);
-	 glutFullScreen();
+	glutFullScreen();
 	glutSetCursor(GLUT_CURSOR_NONE);
 
-	Point3D up = vec3(0.0f, 1.0f, 0.0f);
-	camMatrix = lookAtv(p, l, up);
 
 	// GL inits
 	glClearColor(0.2,0.2,0.5,0);
@@ -217,6 +204,7 @@ void init(void)
 	
 	LoadTGATexture("fft-terrain.tga", &ttex);
 	world = new World(&ttex);
+	player = new Player(p,l,world);
 	tm = world->GenerateTerrain();
 	printError("init terrain");
 
@@ -228,22 +216,17 @@ void init(void)
 
 void display(void)
 {
-	if(wIsDown)
+	if(wIsDown) 
 	{
-			temp = VectorSub(l, p);
-			temp = Normalize(temp);
-			temp = ScalarMult(temp, 0.3f);
-			p = VectorAdd(temp, p);
-			l = VectorAdd(temp, l);	
+		player->goForward();
 	}
-	if(sIsDown){
-			temp = VectorSub(p, l);
-			temp = Normalize(temp);
-			temp = ScalarMult(temp, 0.3f);
-			p = VectorAdd(temp, p);
-			l = VectorAdd(temp, l);
+	if(sIsDown)
+	{
+			player->goBackwards();
 	}
-	if(aIsDown){
+	/*
+	if(aIsDown) //TODO: Ta bort?
+	{
 			temp = VectorSub(p, l);	
 			temp = CrossProduct(temp, camUp); 
 			temp = Normalize(temp);
@@ -251,7 +234,8 @@ void display(void)
 			p = VectorAdd(temp, p);
 			l = VectorAdd(temp, l);
 	}
-	if(dIsDown){
+	if(dIsDown) //TODO: Ta bort?
+	{
 			temp = VectorSub(p, l);	
 			temp = CrossProduct(camUp, temp); 
 			temp = Normalize(temp);
@@ -259,7 +243,8 @@ void display(void)
 			p = VectorAdd(temp, p);
 			l = VectorAdd(temp, l);
 	}
-
+	
+	
 	if(lastHeight == -999.0){
 		l.y = l.y - p.y + world->findHeight(p.x,p.z) + 2.0;
 		p.y = world->findHeight(p.x,p.z) + 2.0;
@@ -294,8 +279,7 @@ void display(void)
 			
 	}
 	lastHeight = p.y;
-	
-	
+	*/
 
 	// clear the screen
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -308,13 +292,10 @@ void display(void)
 
 	// Build matrix
 	
-	Point3D up = vec3(0,1,0);
-
-	camMatrix = lookAtv(p,l,up);
 	modelView= IdentityMatrix();
 
 	glUniformMatrix4fv(glGetUniformLocation(program, "mdlMatrix"), 1, GL_TRUE, modelView.m);
-	glUniformMatrix4fv(glGetUniformLocation(program, "camMatrix"), 1, GL_TRUE, camMatrix.m);
+	glUniformMatrix4fv(glGetUniformLocation(program, "camMatrix"), 1, GL_TRUE, player->getCamMatrix().m);
 	
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, tex1);
@@ -327,8 +308,6 @@ void display(void)
 	glUniform1i(glGetUniformLocation(program, "tex3"), 3);
 	DrawModel(tm, program, "inPosition", "inNormal", "inTexCoord");
 	
-	
-
 	translate=  T(gx, world->findHeight(gx, gz), gz);
 	total = Mult(modelView, translate);
 

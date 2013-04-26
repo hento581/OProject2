@@ -16,13 +16,17 @@ private:
 
 public:
 	Player(void);
-	Player(Point3D, Point3D);
+	Player(Point3D, Point3D, World*);
 	~Player(void);
-	
+	Point3D getPos(void){return pos;}
+	Point3D getLook(void){return look;}
+	void setLook(Point3D l){look = l;}
+	void setPos(Point3D p){pos = p;}
 	void zUpdate(void);
 	mat4 getCamMatrix(void);
+	void mouseLook(GLfloat,GLfloat);
 
 	void goForward(void);
-	 
+	void goBackwards(void);
 };
 
