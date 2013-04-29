@@ -12,8 +12,6 @@ uniform mat4 mdlMatrix;
 
 
 
-
-
 void main(void)
 {
 	texCoord = inTexCoord;
