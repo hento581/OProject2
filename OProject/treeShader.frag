@@ -2,9 +2,13 @@
 
 // Set-to-white
 
-out vec4 out_Color;
+out vec4 outColor;
+in vec2 texCoord;
+uniform sampler2D tex1;
 
 void main(void)
 {
-	out_Color = vec4(1.0);
+	
+	outColor = texture(tex1, texCoord);
+
 }

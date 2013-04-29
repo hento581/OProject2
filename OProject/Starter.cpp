@@ -64,6 +64,7 @@ Player* player = new Player;
 World* world = new World;
 
 GLuint program;
+GLuint treeProgram;
 
 GLfloat vertices[] = { -0.5f,-0.5f,0.0f,
 						-0.5f,0.5f,0.0f,
@@ -77,7 +78,7 @@ Model *m, *m2, *tm, *bill, *tree;
 
 // Reference to shader program
 
-GLuint tex1, tex2,tex3,tex4;
+GLuint tex1, tex2,tex3,tex4, treeTex;
 TextureData ttex; // terrain
 
 Model* billboardModel(void)
@@ -93,10 +94,10 @@ Model* billboardModel(void)
 						     0.0f,0.0f,1.0f,
 						     0.0f,0.0f,1.0f,
 							 0.0f,0.0f,1.0f,};
-	GLfloat texCoordArray[] = { 1.0f,0.0f,
+	GLfloat texCoordArray[] = { 0.0f,0.0f,
+								0.0f,1.0f,
 								1.0f,1.0f,
-								0.0f,0.0f,
-								0.0f,1.0f};
+								1.0f,0.0f};
 
 	GLuint indexArray[] = { 0,1,2,1,2,3};
 
@@ -214,6 +215,7 @@ void init(void)
 	// GL inits
 	glClearColor(0.2,0.2,0.5,0);
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_TEXTURE_2D);
 	glDisable(GL_CULL_FACE);
 	printError("GL inits");
 
@@ -222,10 +224,13 @@ void init(void)
 	
 	// Load and compile shader
 	program = loadShaders("terrain.vert", "terrain.frag");
+	treeProgram = loadShaders("treeShader.vert", "treeShader.frag");
 	glUseProgram(program);
 	printError("init shader");
 	
 	glUniformMatrix4fv(glGetUniformLocation(program, "projMatrix"), 1, GL_TRUE, projectionMatrix.m);
+	
+	
 	glUniform1i(glGetUniformLocation(program, "tex1"), 0); // Texture unit 0
 	LoadTGATextureSimple("mygrass.tga", &tex1);
 	LoadTGATextureSimple("newterrain.tga", &tex2);
@@ -238,10 +243,18 @@ void init(void)
 	world = new World(&ttex);
 	player = new Player(p,l,world);
 	tm = world->GenerateTerrain();
+
+	glUseProgram(treeProgram);
+	glUniformMatrix4fv(glGetUniformLocation(treeProgram, "projMatrix"), 1, GL_TRUE, projectionMatrix.m);
 	bill = billboardModel();
+
+	LoadTGATextureSimple("mygrass.tga", &treeTex);
+
 	printError("init terrain");
 
 /*
+
+
 		unsigned int vertexBufferObjID;
 	unsigned int colorBufferObjID;
 
@@ -259,6 +272,7 @@ void init(void)
 	glEnableVertexAttribArray(glGetAttribLocation(program, "in_Position")); */
 
 
+	glDisable(GL_TEXTURE_2D);
 }
 
 
@@ -278,7 +292,8 @@ void DrawBillboard(Model* bm, GLfloat x, GLfloat z, mat4 view)
 
 		view = Mult(view,billRotMat);
 	
-		glUniformMatrix4fv(glGetUniformLocation(program, "mdlMatrix"), 1, GL_TRUE, view.m);
+		glUniformMatrix4fv(glGetUniformLocation(treeProgram, "camMatrix"), 1, GL_TRUE, player->getCamMatrix().m);
+		glUniformMatrix4fv(glGetUniformLocation(treeProgram, "mdlMatrix"), 1, GL_TRUE, view.m);
 
 		DrawModel(bm, program, "inPosition", "inNormal", "inTexCoord");
 	}
@@ -314,6 +329,7 @@ void display(void)
 	printError("pre display");
 	
 	glUseProgram(program);
+	glEnable(GL_TEXTURE_2D);
 
 	// Build matrix
 	
@@ -333,6 +349,12 @@ void display(void)
 	glUniform1i(glGetUniformLocation(program, "tex3"), 3);
 	DrawModel(tm, program, "inPosition", "inNormal", "inTexCoord");
 
+	glUseProgram(treeProgram);
+
+	glActiveTexture(GL_TEXTURE4);
+	glBindTexture(GL_TEXTURE_2D, treeTex);
+	glUniform1i(glGetUniformLocation(treeProgram, "tex1"), 4);
+
 	for(int x=2; x<254; x=x+3)
 	{
 		for(int z=2; z<254; z=z+3)
@@ -340,8 +362,8 @@ void display(void)
 			DrawBillboard(bill,x,z,modelView);
 		}
 	}
-	glUniformMatrix4fv(glGetUniformLocation(program, "mdlMatrix"), 1, GL_TRUE, modelView.m);
 
+	glDisable(GL_TEXTURE_2D);
 	glutSwapBuffers();
 	
 }
