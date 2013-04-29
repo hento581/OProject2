@@ -85,8 +85,8 @@ Model* billboardModel(void)
 	int vertexCount = 4;
 	int triangleCount = 2;
 	
-	GLfloat vertexArray[] = { -0.5f,2.0f,0.0f,
-						     0.5f,2.0f,0.0f,
+	GLfloat vertexArray[] = { -0.5f,3.0f,0.0f,
+						     0.5f,3.0f,0.0f,
 						    -0.5f,0.0f,0.0f,
 							 0.5f,0.0f,0.0f};
 	GLfloat normalArray[] = { 0.0f,0.0f,1.0f,
@@ -98,8 +98,7 @@ Model* billboardModel(void)
 								0.0f,0.0f,
 								0.0f,1.0f};
 
-	GLuint indexArray[] = { 1,2,3,
-							2,3,4};
+	GLuint indexArray[] = { 0,1,2,1,2,3};
 
 	Model* m = LoadDataToModel(
 			vertexArray,
@@ -246,7 +245,7 @@ void init(void)
 		unsigned int vertexBufferObjID;
 	unsigned int colorBufferObjID;
 
-	q
+	
 	// Allocate and activate Vertex Array Object
 	glGenVertexArrays(1, &vertexArrayObjID);
 	glBindVertexArray(vertexArrayObjID);
@@ -263,16 +262,28 @@ void init(void)
 }
 
 
-void drawTree(){
+void DrawBillboard(Model* bm, GLfloat x, GLfloat z, mat4 view)
+{
+	vec3 billVec = VectorSub(player->getPos(),vec3(x,0,z));
+	if(Norm(billVec) < 50)
+	{
+		billVec.y = 0;	
+		mat4 translate=  T(x, world->findHeight(x, z), z);
+		view = Mult(view, translate);
+		vec3 billNorm = vec3(0,0,1);
+		billVec = Normalize(billVec);
+		vec3 upVec = CrossProduct(billNorm, billVec);
+		GLfloat angle = acos(DotProduct(billNorm, billVec));
+		mat4 billRotMat = ArbRotate(upVec, angle);
 
-	//tree = LoadModelPlus("Tree.tga");
-//	glBindVertexArray(vertexArrayObjID);	// Select VAO
-	//glDrawArrays(GL_TRIANGLES, 0, 3);
+		view = Mult(view,billRotMat);
+	
+		glUniformMatrix4fv(glGetUniformLocation(program, "mdlMatrix"), 1, GL_TRUE, view.m);
 
-	//DrawModel(tm, program, "inPosition", "inNormal", "inTexCoord");
+		DrawModel(bm, program, "inPosition", "inNormal", "inTexCoord");
+	}
 
 }
-
 
 void display(void)
 {
@@ -294,61 +305,6 @@ void display(void)
 	
 	player->heightUpdate();
 	
-	/*if(aIsDown) //TODO: Ta bort?
-	{
-			temp = VectorSub(p, l);	
-			temp = CrossProduct(temp, camUp); 
-			temp = Normalize(temp);
-			temp = ScalarMult(temp, 0.3f);
-			p = VectorAdd(temp, p);
-			l = VectorAdd(temp, l);
-	}
-	if(dIsDown) //TODO: Ta bort?
-	{
-			temp = VectorSub(p, l);	
-			temp = CrossProduct(camUp, temp); 
-			temp = Normalize(temp);
-			temp = ScalarMult(temp, 0.3f);
-			p = VectorAdd(temp, p);
-			l = VectorAdd(temp, l);
-	}
-	
-	
-	if(lastHeight == -999.0){
-		l.y = l.y - p.y + world->findHeight(p.x,p.z) + 2.0;
-		p.y = world->findHeight(p.x,p.z) + 2.0;
-		lastHeight = p.y;
-	}
-	GLfloat groundHeight = world->findHeight(p.x,p.z) + 2.0;
-	GLfloat newHeight = lastHeight;
-	if(newHeight > groundHeight && !inAir){
-		inAirTime = 0.0;
-		inAir = true;
-	}
-	
-	if(inAir){
-		if(jumping){
-			//jumpSpeed = -gravitation*jumpTime*jumpTime/2+jumpSpeed*jumpTime;
-			newHeight = lastHeight-gravitation*inAirTime*inAirTime/2+jumpSpeed;
-		}
-		else{
-			newHeight = lastHeight-gravitation*inAirTime*inAirTime/2;
-		}
-	}
-	if(newHeight <= groundHeight) inAir=false;
-	if(inAir){
-		l.y = l.y - p.y + newHeight;
-		p.y = newHeight;
-		
-	} 
-	else{
-		inAir=false;
-			l.y = l.y - p.y + groundHeight;
-			p.y = groundHeight;
-			
-	}
-	lastHeight = p.y;
-	*/
 
 	// clear the screen
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -377,29 +333,13 @@ void display(void)
 	glUniform1i(glGetUniformLocation(program, "tex3"), 3);
 	DrawModel(tm, program, "inPosition", "inNormal", "inTexCoord");
 
-	mat4 tempModelView = modelView;
-
-	
-	translate=  T(gx, world->findHeight(gx, gz), gz);
-	total = Mult(modelView, translate);
-	int i,j;
-
-	// undo all rotations
-	// beware all scaling is lost as well 
-	for( i=0; i<3; i++ ) 
-	    for( j=0; j<3; j++ ) {
-		if ( i==j )
-		    modelView.m[i*4+j] = 1.0;
-		else
-		    modelView.m[i*4+j] = 0.0;
-	    }
-
-	glUniformMatrix4fv(glGetUniformLocation(program, "mdlMatrix"), 1, GL_TRUE, modelView.m);
-
-	drawTree();
-
-	modelView = tempModelView;
-
+	for(int x=2; x<254; x=x+3)
+	{
+		for(int z=2; z<254; z=z+3)
+		{
+			DrawBillboard(bill,x,z,modelView);
+		}
+	}
 	glUniformMatrix4fv(glGetUniformLocation(program, "mdlMatrix"), 1, GL_TRUE, modelView.m);
 
 	glutSwapBuffers();
