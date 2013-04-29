@@ -73,7 +73,7 @@ GLfloat vertices[] = { -0.5f,-0.5f,0.0f,
 unsigned int vertexArrayObjID;
 
 // vertex array object
-Model *m, *m2, *tm;
+Model *m, *m2, *tm, *tree;
 // Reference to shader program
 
 GLuint tex1, tex2,tex3,tex4;
@@ -186,7 +186,8 @@ void init(void)
 	printError("GL inits");
 
 	projectionMatrix = frustum(-0.1, 0.1, -0.1, 0.1, 0.2, 100.0);
-
+	
+	
 	// Load and compile shader
 	program = loadShaders("terrain.vert", "terrain.frag");
 	glUseProgram(program);
@@ -207,10 +208,36 @@ void init(void)
 	tm = world->GenerateTerrain();
 	printError("init terrain");
 
+/*
+		unsigned int vertexBufferObjID;
+	unsigned int colorBufferObjID;
+
+
+	// Allocate and activate Vertex Array Object
+	glGenVertexArrays(1, &vertexArrayObjID);
+	glBindVertexArray(vertexArrayObjID);
+	// Allocate Vertex Buffer Objects
+	glGenBuffers(1, &vertexBufferObjID);
+	
+	// VBO for vertex data
+	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObjID);
+	glBufferData(GL_ARRAY_BUFFER, 9*sizeof(GLfloat), vertices, GL_STATIC_DRAW);
+	glVertexAttribPointer(glGetAttribLocation(program, "in_Position"), 3, GL_FLOAT, GL_FALSE, 0, 0); 
+	glEnableVertexAttribArray(glGetAttribLocation(program, "in_Position")); */
+
+
 }
 
 
+void drawTree(){
 
+	//tree = LoadModelPlus("Tree.tga");
+//	glBindVertexArray(vertexArrayObjID);	// Select VAO
+	//glDrawArrays(GL_TRIANGLES, 0, 3);
+
+	//DrawModel(tm, program, "inPosition", "inNormal", "inTexCoord");
+
+}
 
 
 void display(void)
@@ -315,12 +342,34 @@ void display(void)
 	glUniform1i(glGetUniformLocation(program, "tex2"), 2);
 	glUniform1i(glGetUniformLocation(program, "tex3"), 3);
 	DrawModel(tm, program, "inPosition", "inNormal", "inTexCoord");
+
+	mat4 tempModelView = modelView;
+
 	
 	translate=  T(gx, world->findHeight(gx, gz), gz);
 	total = Mult(modelView, translate);
+	int i,j;
+
+	// undo all rotations
+	// beware all scaling is lost as well 
+	for( i=0; i<3; i++ ) 
+	    for( j=0; j<3; j++ ) {
+		if ( i==j )
+		    modelView.m[i*4+j] = 1.0;
+		else
+		    modelView.m[i*4+j] = 0.0;
+	    }
+
+	glUniformMatrix4fv(glGetUniformLocation(program, "mdlMatrix"), 1, GL_TRUE, modelView.m);
+
+	drawTree();
+
+	modelView = tempModelView;
+
+	glUniformMatrix4fv(glGetUniformLocation(program, "mdlMatrix"), 1, GL_TRUE, modelView.m);
 
 	glutSwapBuffers();
-
+	
 }
 
 void timer(int i)
