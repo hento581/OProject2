@@ -86,18 +86,18 @@ Model* billboardModel(void)
 	int vertexCount = 4;
 	int triangleCount = 2;
 	
-	GLfloat vertexArray[] = { -0.5f,3.0f,0.0f,
-						     0.5f,3.0f,0.0f,
-						    -0.5f,0.0f,0.0f,
-							 0.5f,0.0f,0.0f};
+	GLfloat vertexArray[] = { -1.0f,5.0f,0.0f,
+						     1.0f,5.0f,0.0f,
+						    -1.0f,0.0f,0.0f,
+							 1.0f,0.0f,0.0f};
 	GLfloat normalArray[] = { 0.0f,0.0f,1.0f,
 						     0.0f,0.0f,1.0f,
 						     0.0f,0.0f,1.0f,
 							 0.0f,0.0f,1.0f,};
-	GLfloat texCoordArray[] = { 0.0f,1.0f,
-								1.0f,1.0f,
+	GLfloat texCoordArray[] = { 1.0f,0.0f,
 								0.0f,0.0f,
-								1.0f,0.0f};
+								1.0f,1.0f,
+								0.0f,1.0f};
 
 	GLuint indexArray[] = { 0,1,2,1,2,3};
 
@@ -216,8 +216,8 @@ void init(void)
 	glClearColor(0.2,0.2,0.5,0);
 	glEnable(GL_DEPTH_TEST);
 	glDisable(GL_CULL_FACE);
-	//glEnable(GL_BLEND);
-	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	printError("GL inits");
 
 	projectionMatrix = frustum(-0.1, 0.1, -0.1, 0.1, 0.2, 100.0);
