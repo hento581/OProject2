@@ -55,19 +55,45 @@ void Player::goForward(void)
 {
 	if(pos.y - w->findHeight(pos.x,pos.z) <0.1 && pos.y - w->findHeight(pos.x,pos.z) >-0.1)
 	{
+		GLfloat h = w->findHeight(pos.x,pos.z);
 		Point3D move = VectorSub(this->look, this->pos);
-		Point3D normal = w->findNormal(pos.x,pos.z,w->getModel()->vertexArray);
+		Point3D oldPos = pos;
+		//Point3D normal = w->findNormal(pos.x,pos.z,w->getModel()->vertexArray);
 		move.y = 0;
 		move= Normalize(move);
-		GLfloat temp = DotProduct(move,normal);
+		/*GLfloat temp = DotProduct(move,normal);
 		printf("%f", temp);
 		printf(" ");
 		move = VectorAdd(move,ScalarMult(move, DotProduct(move,normal)*abs(DotProduct(move,normal))));
 		GLfloat speed = 0.2*(Norm(move)+4*Norm(oldSpeed))*0.2;  //TODO: fix speed!
 		move = ScalarMult(Normalize(move), speed); //TODO: set variable instead of numerica value
 		oldSpeed = move;
-		pos = VectorAdd(move, pos);
-		look = VectorAdd(move, look);
+		pos = VectorAdd(0.01*move, pos);
+		look = VectorAdd(0.01*move, look);*/
+		for(int i = 1; i<=10; i++)
+		{
+				pos = VectorAdd(ScalarMult(move,0.01), pos);
+				look = VectorAdd(ScalarMult(move,0.01), look);
+				if(w->findHeight(pos.x,pos.z) >= h+0.03)
+					i=30;
+		}
+		for(int i = 1; i<=10; i++)
+		{
+				pos = VectorAdd(ScalarMult(move,0.01), pos);
+				look = VectorAdd(ScalarMult(move,0.01), look);
+				if(w->findHeight(pos.x,pos.z) >= h+0.01)
+					i=30;
+		}
+		for(int i = 1; i<=5; i++)
+		{
+				pos = VectorAdd(ScalarMult(move,0.01), pos);
+				look = VectorAdd(ScalarMult(move,0.01), look);
+				if(w->findHeight(pos.x,pos.z) >= h)
+					i=30;
+		}
+		oldSpeed = VectorSub(pos,oldPos);
+		look.y = look.y - pos.y + w->findHeight(pos.x,pos.z);
+		pos.y = w->findHeight(pos.x,pos.z);
 	}
 }
 void Player::stop(void)
