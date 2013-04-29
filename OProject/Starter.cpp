@@ -208,7 +208,7 @@ void init(void)
 	tm = world->GenerateTerrain();
 	printError("init terrain");
 
-/*
+
 		unsigned int vertexBufferObjID;
 	unsigned int colorBufferObjID;
 
@@ -222,8 +222,8 @@ void init(void)
 	// VBO for vertex data
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObjID);
 	glBufferData(GL_ARRAY_BUFFER, 9*sizeof(GLfloat), vertices, GL_STATIC_DRAW);
-	glVertexAttribPointer(glGetAttribLocation(program, "in_Position"), 3, GL_FLOAT, GL_FALSE, 0, 0); 
-	glEnableVertexAttribArray(glGetAttribLocation(program, "in_Position")); */
+	glVertexAttribPointer(glGetAttribLocation(program, "inPosition"), 3, GL_FLOAT, GL_FALSE, 0, 0); 
+	glEnableVertexAttribArray(glGetAttribLocation(program, "inPosition")); 
 
 
 }
@@ -232,10 +232,20 @@ void init(void)
 void drawTree(){
 
 	//tree = LoadModelPlus("Tree.tga");
-//	glBindVertexArray(vertexArrayObjID);	// Select VAO
-	//glDrawArrays(GL_TRIANGLES, 0, 3);
+	glBindVertexArray(vertexArrayObjID);	// Select VAO
+	glDrawArrays(GL_TRIANGLES, 0, 3);
 
 	//DrawModel(tm, program, "inPosition", "inNormal", "inTexCoord");
+
+	/*	 glTranslatef(3.0f,3.0f,3.0f);  
+	 glBegin(GL_QUADS);                      // Draw A Quad
+
+        glVertex3f(-1.0f, 1.0f, 0.0f);              // Top Left
+        glVertex3f( 1.0f, 1.0f, 0.0f);              // Top Right
+        glVertex3f( 1.0f,-1.0f, 0.0f);              // Bottom Right
+        glVertex3f(-1.0f,-1.0f, 0.0f);              // Bottom Left
+    glEnd();                            // Done Drawing The Quad*/
+		
 
 }
 
@@ -260,61 +270,7 @@ void display(void)
 	
 	player->heightUpdate();
 	
-	/*if(aIsDown) //TODO: Ta bort?
-	{
-			temp = VectorSub(p, l);	
-			temp = CrossProduct(temp, camUp); 
-			temp = Normalize(temp);
-			temp = ScalarMult(temp, 0.3f);
-			p = VectorAdd(temp, p);
-			l = VectorAdd(temp, l);
-	}
-	if(dIsDown) //TODO: Ta bort?
-	{
-			temp = VectorSub(p, l);	
-			temp = CrossProduct(camUp, temp); 
-			temp = Normalize(temp);
-			temp = ScalarMult(temp, 0.3f);
-			p = VectorAdd(temp, p);
-			l = VectorAdd(temp, l);
-	}
 	
-	
-	if(lastHeight == -999.0){
-		l.y = l.y - p.y + world->findHeight(p.x,p.z) + 2.0;
-		p.y = world->findHeight(p.x,p.z) + 2.0;
-		lastHeight = p.y;
-	}
-	GLfloat groundHeight = world->findHeight(p.x,p.z) + 2.0;
-	GLfloat newHeight = lastHeight;
-	if(newHeight > groundHeight && !inAir){
-		inAirTime = 0.0;
-		inAir = true;
-	}
-	
-	if(inAir){
-		if(jumping){
-			//jumpSpeed = -gravitation*jumpTime*jumpTime/2+jumpSpeed*jumpTime;
-			newHeight = lastHeight-gravitation*inAirTime*inAirTime/2+jumpSpeed;
-		}
-		else{
-			newHeight = lastHeight-gravitation*inAirTime*inAirTime/2;
-		}
-	}
-	if(newHeight <= groundHeight) inAir=false;
-	if(inAir){
-		l.y = l.y - p.y + newHeight;
-		p.y = newHeight;
-		
-	} 
-	else{
-		inAir=false;
-			l.y = l.y - p.y + groundHeight;
-			p.y = groundHeight;
-			
-	}
-	lastHeight = p.y;
-	*/
 
 	// clear the screen
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -346,7 +302,7 @@ void display(void)
 	mat4 tempModelView = modelView;
 
 	
-	translate=  T(gx, world->findHeight(gx, gz), gz);
+	translate=  T(gx+10, world->findHeight(gx, gz), gz+10);
 	total = Mult(modelView, translate);
 	int i,j;
 
