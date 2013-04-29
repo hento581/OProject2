@@ -73,12 +73,45 @@ GLfloat vertices[] = { -0.5f,-0.5f,0.0f,
 unsigned int vertexArrayObjID;
 
 // vertex array object
-Model *m, *m2, *tm, *tree;
+Model *m, *m2, *tm, *bill, *tree;
+
 // Reference to shader program
 
 GLuint tex1, tex2,tex3,tex4;
 TextureData ttex; // terrain
 
+Model* billboardModel(void)
+{
+	int vertexCount = 4;
+	int triangleCount = 2;
+	
+	GLfloat vertexArray[] = { -0.5f,2.0f,0.0f,
+						     0.5f,2.0f,0.0f,
+						    -0.5f,0.0f,0.0f,
+							 0.5f,0.0f,0.0f};
+	GLfloat normalArray[] = { 0.0f,0.0f,1.0f,
+						     0.0f,0.0f,1.0f,
+						     0.0f,0.0f,1.0f,
+							 0.0f,0.0f,1.0f,};
+	GLfloat texCoordArray[] = { 1.0f,0.0f,
+								1.0f,1.0f,
+								0.0f,0.0f,
+								0.0f,1.0f};
+
+	GLuint indexArray[] = { 1,2,3,
+							2,3,4};
+
+	Model* m = LoadDataToModel(
+			vertexArray,
+			normalArray,
+			texCoordArray,
+			NULL,
+			indexArray,
+			vertexCount,
+			triangleCount*3);
+
+	return m;
+}
 
 void keyboardFunction (unsigned char key, int xmouse, int ymouse)
 {	
@@ -206,6 +239,7 @@ void init(void)
 	world = new World(&ttex);
 	player = new Player(p,l,world);
 	tm = world->GenerateTerrain();
+	bill = billboardModel();
 	printError("init terrain");
 
 /*
@@ -327,7 +361,7 @@ void display(void)
 
 	// Build matrix
 	
-	modelView= IdentityMatrix();
+	modelView= T(2.0,2.0,2.0);
 
 	glUniformMatrix4fv(glGetUniformLocation(program, "mdlMatrix"), 1, GL_TRUE, modelView.m);
 	glUniformMatrix4fv(glGetUniformLocation(program, "camMatrix"), 1, GL_TRUE, player->getCamMatrix().m);
