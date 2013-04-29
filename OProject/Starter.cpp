@@ -94,9 +94,9 @@ Model* billboardModel(void)
 						     0.0f,0.0f,1.0f,
 						     0.0f,0.0f,1.0f,
 							 0.0f,0.0f,1.0f,};
-	GLfloat texCoordArray[] = { 0.0f,0.0f,
-								0.0f,1.0f,
+	GLfloat texCoordArray[] = { 0.0f,1.0f,
 								1.0f,1.0f,
+								0.0f,0.0f,
 								1.0f,0.0f};
 
 	GLuint indexArray[] = { 0,1,2,1,2,3};
@@ -215,8 +215,9 @@ void init(void)
 	// GL inits
 	glClearColor(0.2,0.2,0.5,0);
 	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_TEXTURE_2D);
 	glDisable(GL_CULL_FACE);
+	//glEnable(GL_BLEND);
+	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	printError("GL inits");
 
 	projectionMatrix = frustum(-0.1, 0.1, -0.1, 0.1, 0.2, 100.0);
@@ -248,31 +249,11 @@ void init(void)
 	glUniformMatrix4fv(glGetUniformLocation(treeProgram, "projMatrix"), 1, GL_TRUE, projectionMatrix.m);
 	bill = billboardModel();
 
-	LoadTGATextureSimple("mygrass.tga", &treeTex);
+	LoadTGATextureSimple("tree.tga", &treeTex);
 
 	printError("init terrain");
 
-/*
-
-
-		unsigned int vertexBufferObjID;
-	unsigned int colorBufferObjID;
-
 	
-	// Allocate and activate Vertex Array Object
-	glGenVertexArrays(1, &vertexArrayObjID);
-	glBindVertexArray(vertexArrayObjID);
-	// Allocate Vertex Buffer Objects
-	glGenBuffers(1, &vertexBufferObjID);
-	
-	// VBO for vertex data
-	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObjID);
-	glBufferData(GL_ARRAY_BUFFER, 9*sizeof(GLfloat), vertices, GL_STATIC_DRAW);
-	glVertexAttribPointer(glGetAttribLocation(program, "in_Position"), 3, GL_FLOAT, GL_FALSE, 0, 0); 
-	glEnableVertexAttribArray(glGetAttribLocation(program, "in_Position")); */
-
-
-	glDisable(GL_TEXTURE_2D);
 }
 
 
@@ -295,7 +276,7 @@ void DrawBillboard(Model* bm, GLfloat x, GLfloat z, mat4 view)
 		glUniformMatrix4fv(glGetUniformLocation(treeProgram, "camMatrix"), 1, GL_TRUE, player->getCamMatrix().m);
 		glUniformMatrix4fv(glGetUniformLocation(treeProgram, "mdlMatrix"), 1, GL_TRUE, view.m);
 
-		DrawModel(bm, program, "inPosition", "inNormal", "inTexCoord");
+		DrawModel(bm, treeProgram, "inPosition", "inNormal", "inTexCoord");
 	}
 
 }
@@ -329,7 +310,7 @@ void display(void)
 	printError("pre display");
 	
 	glUseProgram(program);
-	glEnable(GL_TEXTURE_2D);
+
 
 	// Build matrix
 	
@@ -363,7 +344,7 @@ void display(void)
 		}
 	}
 
-	glDisable(GL_TEXTURE_2D);
+	
 	glutSwapBuffers();
 	
 }
