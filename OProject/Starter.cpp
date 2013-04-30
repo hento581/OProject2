@@ -11,12 +11,14 @@
 #include <time.h>
 
 
-#define near 1.0
- #define far 200.0
- #define right 0.5
- #define left -0.5
- #define top 0.5
- #define bottom -0.5
+#define near 0.2
+ #define far 150.0
+ #define right 0.1
+ #define left -0.1
+ #define top 0.1
+ #define bottom -0.1
+
+ 
 
 mat4 projectionMatrix;
 
@@ -29,6 +31,8 @@ bool dIsDown = false;
 
 
 GLfloat jump = 0.0;
+
+int treeRenderingDistance = 100;
 
 //För gravitation
 GLfloat lastHeight = -999.0;
@@ -109,12 +113,12 @@ Model* billboardModel(void)
 	int triangleCount = 2;
 	
 	GLfloat vertexArray[] = { -1.0f,5.0f,0.0f,
-						     1.0f,5.0f,0.0f,
-						    -1.0f,0.0f,0.0f,
+							 1.0f,5.0f,0.0f,
+							-1.0f,0.0f,0.0f,
 							 1.0f,0.0f,0.0f};
 	GLfloat normalArray[] = { 0.0f,0.0f,1.0f,
-						     0.0f,0.0f,1.0f,
-						     0.0f,0.0f,1.0f,
+							 0.0f,0.0f,1.0f,
+							 0.0f,0.0f,1.0f,
 							 0.0f,0.0f,1.0f,};
 	GLfloat texCoordArray[] = { 1.0f,0.0f,
 								0.0f,0.0f,
@@ -157,11 +161,10 @@ void keyboardFunction (unsigned char key, int xmouse, int ymouse)
 			jumping = true;
 		break;
 		default:
-         break;
+		 break;
 	}
 	
 }
-
 
 void keyboardUpFunction (unsigned char key, int xmouse, int ymouse)
 {	
@@ -182,7 +185,7 @@ void keyboardUpFunction (unsigned char key, int xmouse, int ymouse)
 			jumping = false;
 		break; 
 		default:
-         break;
+		 break;
 	}
 
 }
@@ -193,21 +196,19 @@ void keyboardSpecFunction (int key, int xmouse, int ymouse)
 		
 
 		default:
-         break;
+		 break;
 	}
 	
 }
-
 
 void keyboardSpecUpFunction (int key, int xmouse, int ymouse)
 {	
 	switch (key){
 		
 		default:
-         break;
+		 break;
 	}
 }
-
 
 void mouse(int x, int y)
 {
@@ -223,6 +224,69 @@ void mouse(int x, int y)
 	
 }
 
+void TreeRandomNumberGen (GLfloat* randX, GLfloat* randZ, GLfloat x, GLfloat z){
+
+
+
+	*randX=asin(sin(((x*z + sqrt(x) - x*x*x + z*z*z*z +x*z+z*z)/z)*cos(x)*sin(x)))+1;
+	*randZ=asin(sin((z*z+x*z- x*z*x*x/sqrt(z*x) +z*z/x)*cos(z)*cos(z)))+1;
+
+	
+}
+
+void DrawBillboard(Model* bm, int inx, int inz, mat4 view)
+{
+
+	GLfloat x = (GLfloat) inx;
+	GLfloat z = (GLfloat) inz;
+	if(randXZ->xz[inx][(int)z].x < 0.0){
+		GLfloat randX;
+		GLfloat randZ;
+		TreeRandomNumberGen(&randX, &randZ, inx, inz);
+
+		randXZ->xz[inx][(int)z].x = randX;
+		randXZ->xz[inx][(int)z].z = randZ;
+	}
+	
+	
+	x = x + randXZ->xz[inx][inz].x;
+	z = z + randXZ->xz[inx][inz].z;
+
+//	x = x + randX;
+	//z = z + randZ;
+
+	vec3 billVec = VectorSub(player->getPos(),vec3(x,0,z));
+	if(Norm(billVec) < treeRenderingDistance)
+	{
+		billVec.y = 0;	
+		
+		billVec = Normalize(billVec);
+		vec3 playerLookAt = VectorSub(player->getPos(),player->getLook());
+		playerLookAt.y = 0.0;
+		GLfloat lookAngle = DotProduct(Normalize(playerLookAt),billVec);
+		if(lookAngle>0.0){
+
+			mat4 translate=  T(x, world->findHeight(x, z), z);
+			view = Mult(view, translate);
+			vec3 billNorm = vec3(0,0,1);
+
+			vec3 upVec = CrossProduct(billNorm, billVec);
+			GLfloat cosAngle = DotProduct(billNorm, billVec);
+		
+			GLfloat angle = acos(cosAngle);
+		
+			mat4 billRotMat = ArbRotate(upVec, angle);
+
+			view = Mult(view,billRotMat);
+	
+			glUniformMatrix4fv(glGetUniformLocation(treeProgram, "camMatrix"), 1, GL_TRUE, player->getCamMatrix().m);
+			glUniformMatrix4fv(glGetUniformLocation(treeProgram, "mdlMatrix"), 1, GL_TRUE, view.m);
+
+			DrawModel(bm, treeProgram, "inPosition",  NULL, "inTexCoord"); //TODO: put NULL instead of "inNormal" here to make it work..
+		}
+	}
+
+}
 
 void init(void)
 {
@@ -244,7 +308,9 @@ void init(void)
 	
 	printError("GL inits");
 
-	projectionMatrix = frustum(-0.1, 0.1, -0.1, 0.1, 0.2, 100.0);
+	projectionMatrix = frustum(left,right, bottom, top, near, far);
+
+
 
 	
 	
@@ -295,42 +361,6 @@ void init(void)
 	
 }
 
-
-void DrawBillboard(Model* bm, int inx, int inz, mat4 view)
-{
-
-	GLfloat x = (GLfloat) inx;
-	GLfloat z = (GLfloat) inz;
-	if(randXZ->xz[inx][(int)z].x < 0.0){
-		randXZ->xz[inx][(int)z].x = (float)rand()/((float)RAND_MAX)*2;
-		randXZ->xz[inx][(int)z].z = (float)rand()/((float)RAND_MAX)*2;
-	}
-	
-
-	x = x + randXZ->xz[inx][inz].x;
-	z = z + randXZ->xz[inx][inz].z;
-	vec3 billVec = VectorSub(player->getPos(),vec3(x,0,z));
-	if(Norm(billVec) < 50)
-	{
-		billVec.y = 0;	
-		mat4 translate=  T(x, world->findHeight(x, z), z);
-		view = Mult(view, translate);
-		vec3 billNorm = vec3(0,0,1);
-		billVec = Normalize(billVec);
-		vec3 upVec = CrossProduct(billNorm, billVec);
-		GLfloat angle = acos(DotProduct(billNorm, billVec));
-		mat4 billRotMat = ArbRotate(upVec, angle);
-
-		view = Mult(view,billRotMat);
-	
-		glUniformMatrix4fv(glGetUniformLocation(treeProgram, "camMatrix"), 1, GL_TRUE, player->getCamMatrix().m);
-		glUniformMatrix4fv(glGetUniformLocation(treeProgram, "mdlMatrix"), 1, GL_TRUE, view.m);
-
-		DrawModel(bm, treeProgram, "inPosition",  NULL, "inTexCoord"); //TODO: put NULL instead of "inNormal" here to make it work..
-	}
-
-}
-
 void display(void)
 {
 	if(wIsDown) 
@@ -348,10 +378,7 @@ void display(void)
 	{
 			player->jump();
 	}
-
-	
-	player->heightUpdate();
-	
+	player->heightUpdate();	
 
 	// clear the screen
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
