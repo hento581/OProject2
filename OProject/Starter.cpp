@@ -8,6 +8,7 @@
 #include "VectorUtils3.h"
 #include "Player.h"
 #include "World.h"
+#include <time.h>
 
 
 #define near 1.0
@@ -70,6 +71,20 @@ GLfloat vertices[] = { -0.5f,-0.5f,0.0f,
 						-0.5f,0.5f,0.0f,
 						0.5f,-0.5f,0.0f };
 
+struct XandZ
+{
+	GLfloat x;
+	GLfloat z;
+
+};
+
+struct RandXZ				
+{
+	XandZ xz[256][256];
+
+};
+
+RandXZ* randXZ = new RandXZ;
 // vertex array object
 unsigned int vertexArrayObjID;
 
@@ -83,6 +98,9 @@ TextureData ttex; // terrain
 
 Model* billboardModel(void)
 {
+
+	
+
 	int vertexCount = 4;
 	int triangleCount = 2;
 	
@@ -214,10 +232,10 @@ void init(void)
 
 	// GL inits
 	glClearColor(0.2,0.2,0.5,0);
-	glEnable(GL_DEPTH_TEST);
+	//glEnable(GL_DEPTH_TEST); //TODO: This creates the error of trees not being transperant to each other
 	glDisable(GL_CULL_FACE);
-	//glEnable(GL_BLEND);
-	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	printError("GL inits");
 
 	projectionMatrix = frustum(-0.1, 0.1, -0.1, 0.1, 0.2, 100.0);
@@ -257,8 +275,19 @@ void init(void)
 }
 
 
-void DrawBillboard(Model* bm, GLfloat x, GLfloat z, mat4 view)
+void DrawBillboard(Model* bm, int inx, int inz, mat4 view)
 {
+
+	GLfloat x = (GLfloat) inx;
+	GLfloat z = (GLfloat) inz;
+	if(randXZ->xz[inx][(int)z].x < 0.0){
+		randXZ->xz[inx][(int)z].x = (float)rand()/((float)RAND_MAX)*2;
+		randXZ->xz[inx][(int)z].z = (float)rand()/((float)RAND_MAX)*2;
+	}
+	
+
+	x = x + randXZ->xz[inx][inz].x;
+	z = z + randXZ->xz[inx][inz].z;
 	vec3 billVec = VectorSub(player->getPos(),vec3(x,0,z));
 	if(Norm(billVec) < 50)
 	{
@@ -276,7 +305,7 @@ void DrawBillboard(Model* bm, GLfloat x, GLfloat z, mat4 view)
 		glUniformMatrix4fv(glGetUniformLocation(treeProgram, "camMatrix"), 1, GL_TRUE, player->getCamMatrix().m);
 		glUniformMatrix4fv(glGetUniformLocation(treeProgram, "mdlMatrix"), 1, GL_TRUE, view.m);
 
-		DrawModel(bm, treeProgram, "inPosition", "inNormal", "inTexCoord");
+		DrawModel(bm, treeProgram, "inPosition",  NULL, "inTexCoord"); //TODO: put NULL instead of "inNormal" here to make it work..
 	}
 
 }
@@ -286,6 +315,7 @@ void display(void)
 	if(wIsDown) 
 	{
 		player->goForward();
+		
 	}
 	else
 		player->stop();
@@ -331,7 +361,7 @@ void display(void)
 	DrawModel(tm, program, "inPosition", "inNormal", "inTexCoord");
 
 	glUseProgram(treeProgram);
-
+	glEnable(GL_BLEND);
 	glActiveTexture(GL_TEXTURE4);
 	glBindTexture(GL_TEXTURE_2D, treeTex);
 	glUniform1i(glGetUniformLocation(treeProgram, "tex1"), 4);
@@ -344,7 +374,7 @@ void display(void)
 		}
 	}
 
-	
+	glDisable(GL_BLEND);
 	glutSwapBuffers();
 	
 }
@@ -352,16 +382,7 @@ void display(void)
 void timer(int i)
 {
 	glutTimerFunc(20, &timer, i);
-	/*if(jumping){
-		if(jumpTime<maxJumpTime){
-			jumpTime+=1.0;
-		}
-		else{
-			jumping=false;
-			jumpTime=0.0;
-		}
-	}*/
-	inAirTime+=1.0;
+	
 	glutPostRedisplay();
 }
 
@@ -374,6 +395,8 @@ int main(int argc, char *argv[])
 	
 	init();
 	
+
+	srand((unsigned)time(0));
 	glutKeyboardFunc(keyboardFunction);
 	glutKeyboardUpFunc(keyboardUpFunction);
 	glutSpecialFunc(keyboardSpecFunction);
