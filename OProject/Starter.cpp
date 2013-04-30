@@ -299,10 +299,10 @@ void init(void)
 
 	// GL inits
 	glClearColor(0.2,0.2,0.5,0);
-	glEnable(GL_DEPTH_TEST); //TODO: This creates the error of trees not being transperant to each other
+	glEnable(GL_DEPTH_TEST); 
 	glDisable(GL_CULL_FACE);
 	
-	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	
 	glAlphaFunc(GL_GREATER, 0.0f);
 	
 	printError("GL inits");
@@ -360,7 +360,7 @@ void init(void)
 	glUseProgram(skyProgram);
 	glUniformMatrix4fv(glGetUniformLocation(skyProgram, "projMatrix"), 1, GL_TRUE, projectionMatrix.m);
 	sky = LoadModelPlus("skybox.obj");
-	LoadTGATextureSimple("SkyBox512.tga", &skyTex);
+	LoadTGATextureSimple("SkyBox5122.tga", &skyTex);
 
 	printError("init terrain");
 
@@ -392,13 +392,39 @@ void display(void)
 	mat4 total, modelView, translate;
 	
 	printError("pre display");
+
+		modelView= IdentityMatrix();
+//Sky box
+
+	glUseProgram(skyProgram);
+	glDisable(GL_DEPTH_TEST);
+	mat4 camMatrix2 = player->getCamMatrix();
+
+	camMatrix2.m[3] = 0;
+	camMatrix2.m[7] = 0;
+	camMatrix2.m[11] = 0;	
+
+	mat4 modelView2 = modelView;
+
+	mat4 translate2 = T(0,-0.5,0);
+	modelView2 = Mult(modelView2,translate2);
+
+	glUniformMatrix4fv(glGetUniformLocation(skyProgram, "mdlMatrix"), 1, GL_TRUE, modelView2.m);
+	glUniformMatrix4fv(glGetUniformLocation(skyProgram, "camMatrix"), 1, GL_TRUE, camMatrix2.m);
+
+	glActiveTexture(GL_TEXTURE5);
+	glBindTexture(GL_TEXTURE_2D, skyTex);
+	glUniform1i(glGetUniformLocation(skyProgram, "tex1"), 5);
+
+	DrawModel(sky, skyProgram, "inPosition", NULL, "inTexCoord");
+	glEnable(GL_DEPTH_TEST);
 	
 	glUseProgram(program);
 
 
 	// Build matrix
 	
-	modelView= IdentityMatrix();
+
 
 	glUniformMatrix4fv(glGetUniformLocation(program, "mdlMatrix"), 1, GL_TRUE, modelView.m);
 	glUniformMatrix4fv(glGetUniformLocation(program, "camMatrix"), 1, GL_TRUE, player->getCamMatrix().m);
@@ -434,31 +460,7 @@ void display(void)
 	glDisable(GL_ALPHA_TEST);
 
 
-	//Sky box
-
-	glEnable(GL_DEPTH_TEST);
-	glUseProgram(skyProgram);
 	
-	mat4 camMatrix2 = player->getCamMatrix();
-
-	camMatrix2.m[3] = 0;
-	camMatrix2.m[7] = 0;
-	camMatrix2.m[11] = 0;	
-
-	mat4 modelView2 = modelView;
-
-	mat4 translate2 = T(0,0.4,0);
-	modelView2 = Mult(modelView2,translate2);
-
-	glUniformMatrix4fv(glGetUniformLocation(skyProgram, "mdlMatrix"), 1, GL_TRUE, modelView2.m);
-	glUniformMatrix4fv(glGetUniformLocation(skyProgram, "camMatrix"), 1, GL_TRUE, camMatrix2.m);
-
-	glActiveTexture(GL_TEXTURE5);
-	glBindTexture(GL_TEXTURE_2D, skyTex);
-	glUniform1i(glGetUniformLocation(skyProgram, "tex1"), 5);
-
-	DrawModel(sky, skyProgram, "inPosition", NULL, "inTexCoord");
-
 	glutSwapBuffers();
 	
 }
