@@ -85,6 +85,10 @@ struct RandXZ
 };
 
 RandXZ* randXZ = new RandXZ;
+
+
+bool posIsTree[254][254];
+
 // vertex array object
 unsigned int vertexArrayObjID;
 
@@ -239,6 +243,8 @@ void init(void)
 	printError("GL inits");
 
 	projectionMatrix = frustum(-0.1, 0.1, -0.1, 0.1, 0.2, 100.0);
+
+	
 	
 	
 	// Load and compile shader
@@ -262,6 +268,19 @@ void init(void)
 	world = new World(&ttex);
 	player = new Player(p,l,world);
 	tm = world->GenerateTerrain();
+
+	for(int i=0; i<254; i++){
+		for(int j=0; j<254; j++){
+			if(world->findHeight(i,j) < 0.3){
+				
+				posIsTree[i][j]=false;
+			}
+			else{
+				posIsTree[i][j]=true;
+			}
+
+		}
+	}
 
 	glUseProgram(treeProgram);
 	glUniformMatrix4fv(glGetUniformLocation(treeProgram, "projMatrix"), 1, GL_TRUE, projectionMatrix.m);
@@ -371,7 +390,9 @@ void display(void)
 	{
 		for(int z=2; z<254; z=z+3)
 		{
-			DrawBillboard(bill,x,z,modelView);
+			if(posIsTree[x][z]){
+				DrawBillboard(bill,x,z,modelView);
+			}
 		}
 	}
 
