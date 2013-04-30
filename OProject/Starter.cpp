@@ -239,7 +239,9 @@ void init(void)
 	glEnable(GL_DEPTH_TEST); //TODO: This creates the error of trees not being transperant to each other
 	glDisable(GL_CULL_FACE);
 	
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glAlphaFunc(GL_GREATER, 0.0f);
+	
 	printError("GL inits");
 
 	projectionMatrix = frustum(-0.1, 0.1, -0.1, 0.1, 0.2, 100.0);
@@ -271,7 +273,7 @@ void init(void)
 
 	for(int i=0; i<254; i++){
 		for(int j=0; j<254; j++){
-			if(world->findHeight(i,j) < 0.3){
+			if(world->findHeight(i,j) < 0.5){
 				
 				posIsTree[i][j]=false;
 			}
@@ -380,8 +382,7 @@ void display(void)
 	DrawModel(tm, program, "inPosition", "inNormal", "inTexCoord");
 
 	glUseProgram(treeProgram);
-	glDisable(GL_DEPTH_TEST);
-	glEnable(GL_BLEND);
+	glEnable(GL_ALPHA_TEST);
 	glActiveTexture(GL_TEXTURE4);
 	glBindTexture(GL_TEXTURE_2D, treeTex);
 	glUniform1i(glGetUniformLocation(treeProgram, "tex1"), 4);
@@ -396,8 +397,8 @@ void display(void)
 		}
 	}
 
-	glDisable(GL_BLEND);
-	glEnable(GL_DEPTH_TEST);
+	
+	glDisable(GL_ALPHA_TEST);
 	glutSwapBuffers();
 	
 }
