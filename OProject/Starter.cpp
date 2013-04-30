@@ -12,7 +12,7 @@
 
 
 #define near 0.2
- #define far 150.0
+ #define far 100.0
  #define right 0.1
  #define left -0.1
  #define top 0.1
@@ -32,7 +32,7 @@ bool dIsDown = false;
 
 GLfloat jump = 0.0;
 
-int treeRenderingDistance = 100;
+int treeRenderingDistance = 50;
 
 //För gravitation
 GLfloat lastHeight = -999.0;
@@ -68,8 +68,7 @@ Player* player = new Player;
 //Skpa world
 World* world = new World;
 
-GLuint program;
-GLuint treeProgram;
+GLuint program, treeProgram, skyProgram;
 
 GLfloat vertices[] = { -0.5f,-0.5f,0.0f,
 						-0.5f,0.5f,0.0f,
@@ -97,11 +96,11 @@ bool posIsTree[254][254];
 unsigned int vertexArrayObjID;
 
 // vertex array object
-Model *m, *m2, *tm, *bill, *tree;
+Model *m, *m2, *tm, *bill, *tree, *sky;
 
 // Reference to shader program
 
-GLuint tex1, tex2,tex3,tex4, treeTex;
+GLuint tex1, tex2,tex3,tex4, treeTex, skyTex;
 TextureData ttex; // terrain
 
 Model* billboardModel(void)
@@ -318,6 +317,7 @@ void init(void)
 	// Load and compile shader
 	program = loadShaders("terrain.vert", "terrain.frag");
 	treeProgram = loadShaders("treeShader.vert", "treeShader.frag");
+	skyProgram = loadShaders("skyShader.vert", "skyShader.frag");
 	glUseProgram(program);
 	printError("init shader");
 	
@@ -355,6 +355,12 @@ void init(void)
 	bill = billboardModel();
 
 	LoadTGATextureSimple("tree.tga", &treeTex);
+
+
+	glUseProgram(skyProgram);
+	glUniformMatrix4fv(glGetUniformLocation(skyProgram, "projMatrix"), 1, GL_TRUE, projectionMatrix.m);
+	sky = LoadModelPlus("skybox.obj");
+	LoadTGATextureSimple("SkyBox512.tga", &skyTex);
 
 	printError("init terrain");
 
@@ -426,6 +432,33 @@ void display(void)
 
 	
 	glDisable(GL_ALPHA_TEST);
+
+
+	//Sky box
+
+	glEnable(GL_DEPTH_TEST);
+	glUseProgram(skyProgram);
+	
+	mat4 camMatrix2 = player->getCamMatrix();
+
+	camMatrix2.m[3] = 0;
+	camMatrix2.m[7] = 0;
+	camMatrix2.m[11] = 0;	
+
+	mat4 modelView2 = modelView;
+
+	mat4 translate2 = T(0,0.4,0);
+	modelView2 = Mult(modelView2,translate2);
+
+	glUniformMatrix4fv(glGetUniformLocation(skyProgram, "mdlMatrix"), 1, GL_TRUE, modelView2.m);
+	glUniformMatrix4fv(glGetUniformLocation(skyProgram, "camMatrix"), 1, GL_TRUE, camMatrix2.m);
+
+	glActiveTexture(GL_TEXTURE5);
+	glBindTexture(GL_TEXTURE_2D, skyTex);
+	glUniform1i(glGetUniformLocation(skyProgram, "tex1"), 5);
+
+	DrawModel(sky, skyProgram, "inPosition", NULL, "inTexCoord");
+
 	glutSwapBuffers();
 	
 }
