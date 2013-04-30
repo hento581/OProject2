@@ -8,6 +8,7 @@
 #include "VectorUtils3.h"
 #include "Player.h"
 #include "World.h"
+#include <time.h>
 
 
 #define near 1.0
@@ -64,45 +65,59 @@ Player* player = new Player;
 World* world = new World;
 
 GLuint program;
+GLuint treeProgram;
 
 GLfloat vertices[] = { -0.5f,-0.5f,0.0f,
 						-0.5f,0.5f,0.0f,
 						0.5f,-0.5f,0.0f };
 
+struct XandZ
+{
+	GLfloat x;
+	GLfloat z;
+
+};
+
+struct RandXZ				
+{
+	XandZ xz[256][256];
+
+};
+
+RandXZ* randXZ = new RandXZ;
 // vertex array object
 unsigned int vertexArrayObjID;
 
 // vertex array object
-<<<<<<< HEAD
-Model *m, *m2, *tm, *bill;
-=======
-Model *m, *m2, *tm, *tree;
->>>>>>> 847a323e7ec24b79c1f66cc34b6195ffe0adba7c
+Model *m, *m2, *tm, *bill, *tree;
+
 // Reference to shader program
 
-GLuint tex1, tex2,tex3,tex4;
+GLuint tex1, tex2,tex3,tex4, treeTex;
 TextureData ttex; // terrain
 
 Model* billboardModel(void)
 {
+
+	
+
 	int vertexCount = 4;
 	int triangleCount = 2;
 	
-	GLfloat vertexArray[] = { -0.5f,2.0f,0.0f,
-						     0.5f,2.0f,0.0f,
-						    -0.5f,0.0f,0.0f,
-							 0.5f,0.0f,0.0f};
+	GLfloat vertexArray[] = { -1.0f,5.0f,0.0f,
+						     1.0f,5.0f,0.0f,
+						    -1.0f,0.0f,0.0f,
+							 1.0f,0.0f,0.0f};
 	GLfloat normalArray[] = { 0.0f,0.0f,1.0f,
 						     0.0f,0.0f,1.0f,
 						     0.0f,0.0f,1.0f,
 							 0.0f,0.0f,1.0f,};
 	GLfloat texCoordArray[] = { 1.0f,0.0f,
-								1.0f,1.0f,
 								0.0f,0.0f,
+								1.0f,1.0f,
 								0.0f,1.0f};
 
-	GLuint indexArray[] = { 1,2,3,
-							2,3,4};
+	GLuint indexArray[] = { 0,1,2,1,2,3};
 
 	Model* m = LoadDataToModel(
 			vertexArray,
@@ -217,8 +232,14 @@ void init(void)
 
 	// GL inits
 	glClearColor(0.2,0.2,0.5,0);
-	glEnable(GL_DEPTH_TEST);
+	//glEnable(GL_DEPTH_TEST); //TODO: This creates the error of trees not being transperant to each other
 	glDisable(GL_CULL_FACE);
+<<<<<<< HEAD
+	
+=======
+	glEnable(GL_BLEND);
+>>>>>>> 3f2cbcc2d37f539276f8476e287c74974145365c
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	printError("GL inits");
 
 	projectionMatrix = frustum(-0.1, 0.1, -0.1, 0.1, 0.2, 100.0);
@@ -226,10 +247,13 @@ void init(void)
 	
 	// Load and compile shader
 	program = loadShaders("terrain.vert", "terrain.frag");
+	treeProgram = loadShaders("treeShader.vert", "treeShader.frag");
 	glUseProgram(program);
 	printError("init shader");
 	
 	glUniformMatrix4fv(glGetUniformLocation(program, "projMatrix"), 1, GL_TRUE, projectionMatrix.m);
+	
+	
 	glUniform1i(glGetUniformLocation(program, "tex1"), 0); // Texture unit 0
 	LoadTGATextureSimple("mygrass.tga", &tex1);
 	LoadTGATextureSimple("newterrain.tga", &tex2);
@@ -242,46 +266,60 @@ void init(void)
 	world = new World(&ttex);
 	player = new Player(p,l,world);
 	tm = world->GenerateTerrain();
+
+	glUseProgram(treeProgram);
+	glUniformMatrix4fv(glGetUniformLocation(treeProgram, "projMatrix"), 1, GL_TRUE, projectionMatrix.m);
 	bill = billboardModel();
+
+	LoadTGATextureSimple("tree.tga", &treeTex);
+
 	printError("init terrain");
 
-/*
-		unsigned int vertexBufferObjID;
-	unsigned int colorBufferObjID;
-
-
-	// Allocate and activate Vertex Array Object
-	glGenVertexArrays(1, &vertexArrayObjID);
-	glBindVertexArray(vertexArrayObjID);
-	// Allocate Vertex Buffer Objects
-	glGenBuffers(1, &vertexBufferObjID);
 	
-	// VBO for vertex data
-	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObjID);
-	glBufferData(GL_ARRAY_BUFFER, 9*sizeof(GLfloat), vertices, GL_STATIC_DRAW);
-	glVertexAttribPointer(glGetAttribLocation(program, "in_Position"), 3, GL_FLOAT, GL_FALSE, 0, 0); 
-	glEnableVertexAttribArray(glGetAttribLocation(program, "in_Position")); */
-
-
 }
 
 
-void drawTree(){
+void DrawBillboard(Model* bm, int inx, int inz, mat4 view)
+{
 
-	//tree = LoadModelPlus("Tree.tga");
-//	glBindVertexArray(vertexArrayObjID);	// Select VAO
-	//glDrawArrays(GL_TRIANGLES, 0, 3);
+	GLfloat x = (GLfloat) inx;
+	GLfloat z = (GLfloat) inz;
+	if(randXZ->xz[inx][(int)z].x < 0.0){
+		randXZ->xz[inx][(int)z].x = (float)rand()/((float)RAND_MAX)*2;
+		randXZ->xz[inx][(int)z].z = (float)rand()/((float)RAND_MAX)*2;
+	}
+	
 
-	//DrawModel(tm, program, "inPosition", "inNormal", "inTexCoord");
+	x = x + randXZ->xz[inx][inz].x;
+	z = z + randXZ->xz[inx][inz].z;
+	vec3 billVec = VectorSub(player->getPos(),vec3(x,0,z));
+	if(Norm(billVec) < 50)
+	{
+		billVec.y = 0;	
+		mat4 translate=  T(x, world->findHeight(x, z), z);
+		view = Mult(view, translate);
+		vec3 billNorm = vec3(0,0,1);
+		billVec = Normalize(billVec);
+		vec3 upVec = CrossProduct(billNorm, billVec);
+		GLfloat angle = acos(DotProduct(billNorm, billVec));
+		mat4 billRotMat = ArbRotate(upVec, angle);
+
+		view = Mult(view,billRotMat);
+	
+		glUniformMatrix4fv(glGetUniformLocation(treeProgram, "camMatrix"), 1, GL_TRUE, player->getCamMatrix().m);
+		glUniformMatrix4fv(glGetUniformLocation(treeProgram, "mdlMatrix"), 1, GL_TRUE, view.m);
+
+		DrawModel(bm, treeProgram, "inPosition",  NULL, "inTexCoord"); //TODO: put NULL instead of "inNormal" here to make it work..
+	}
 
 }
-
 
 void display(void)
 {
 	if(wIsDown) 
 	{
 		player->goForward();
+		
 	}
 	else
 		player->stop();
@@ -297,61 +335,6 @@ void display(void)
 	
 	player->heightUpdate();
 	
-	/*if(aIsDown) //TODO: Ta bort?
-	{
-			temp = VectorSub(p, l);	
-			temp = CrossProduct(temp, camUp); 
-			temp = Normalize(temp);
-			temp = ScalarMult(temp, 0.3f);
-			p = VectorAdd(temp, p);
-			l = VectorAdd(temp, l);
-	}
-	if(dIsDown) //TODO: Ta bort?
-	{
-			temp = VectorSub(p, l);	
-			temp = CrossProduct(camUp, temp); 
-			temp = Normalize(temp);
-			temp = ScalarMult(temp, 0.3f);
-			p = VectorAdd(temp, p);
-			l = VectorAdd(temp, l);
-	}
-	
-	
-	if(lastHeight == -999.0){
-		l.y = l.y - p.y + world->findHeight(p.x,p.z) + 2.0;
-		p.y = world->findHeight(p.x,p.z) + 2.0;
-		lastHeight = p.y;
-	}
-	GLfloat groundHeight = world->findHeight(p.x,p.z) + 2.0;
-	GLfloat newHeight = lastHeight;
-	if(newHeight > groundHeight && !inAir){
-		inAirTime = 0.0;
-		inAir = true;
-	}
-	
-	if(inAir){
-		if(jumping){
-			//jumpSpeed = -gravitation*jumpTime*jumpTime/2+jumpSpeed*jumpTime;
-			newHeight = lastHeight-gravitation*inAirTime*inAirTime/2+jumpSpeed;
-		}
-		else{
-			newHeight = lastHeight-gravitation*inAirTime*inAirTime/2;
-		}
-	}
-	if(newHeight <= groundHeight) inAir=false;
-	if(inAir){
-		l.y = l.y - p.y + newHeight;
-		p.y = newHeight;
-		
-	} 
-	else{
-		inAir=false;
-			l.y = l.y - p.y + groundHeight;
-			p.y = groundHeight;
-			
-	}
-	lastHeight = p.y;
-	*/
 
 	// clear the screen
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -362,9 +345,10 @@ void display(void)
 	
 	glUseProgram(program);
 
+
 	// Build matrix
 	
-	modelView= T(2.0,2.0,2.0);
+	modelView= IdentityMatrix();
 
 	glUniformMatrix4fv(glGetUniformLocation(program, "mdlMatrix"), 1, GL_TRUE, modelView.m);
 	glUniformMatrix4fv(glGetUniformLocation(program, "camMatrix"), 1, GL_TRUE, player->getCamMatrix().m);
@@ -379,36 +363,22 @@ void display(void)
 	glUniform1i(glGetUniformLocation(program, "tex2"), 2);
 	glUniform1i(glGetUniformLocation(program, "tex3"), 3);
 	DrawModel(tm, program, "inPosition", "inNormal", "inTexCoord");
-<<<<<<< HEAD
-	DrawModel(bill, program, "inPosition", "inNormal", "inTexCoord");
-=======
 
-	mat4 tempModelView = modelView;
+	glUseProgram(treeProgram);
+	glEnable(GL_BLEND);
+	glActiveTexture(GL_TEXTURE4);
+	glBindTexture(GL_TEXTURE_2D, treeTex);
+	glUniform1i(glGetUniformLocation(treeProgram, "tex1"), 4);
 
-	
->>>>>>> 847a323e7ec24b79c1f66cc34b6195ffe0adba7c
-	translate=  T(gx, world->findHeight(gx, gz), gz);
-	total = Mult(modelView, translate);
-	int i,j;
+	for(int x=2; x<254; x=x+3)
+	{
+		for(int z=2; z<254; z=z+3)
+		{
+			DrawBillboard(bill,x,z,modelView);
+		}
+	}
 
-	// undo all rotations
-	// beware all scaling is lost as well 
-	for( i=0; i<3; i++ ) 
-	    for( j=0; j<3; j++ ) {
-		if ( i==j )
-		    modelView.m[i*4+j] = 1.0;
-		else
-		    modelView.m[i*4+j] = 0.0;
-	    }
-
-	glUniformMatrix4fv(glGetUniformLocation(program, "mdlMatrix"), 1, GL_TRUE, modelView.m);
-
-	drawTree();
-
-	modelView = tempModelView;
-
-	glUniformMatrix4fv(glGetUniformLocation(program, "mdlMatrix"), 1, GL_TRUE, modelView.m);
-
+	glDisable(GL_BLEND);
 	glutSwapBuffers();
 	
 }
@@ -416,16 +386,7 @@ void display(void)
 void timer(int i)
 {
 	glutTimerFunc(20, &timer, i);
-	/*if(jumping){
-		if(jumpTime<maxJumpTime){
-			jumpTime+=1.0;
-		}
-		else{
-			jumping=false;
-			jumpTime=0.0;
-		}
-	}*/
-	inAirTime+=1.0;
+	
 	glutPostRedisplay();
 }
 
@@ -438,6 +399,8 @@ int main(int argc, char *argv[])
 	
 	init();
 	
+
+	srand((unsigned)time(0));
 	glutKeyboardFunc(keyboardFunction);
 	glutKeyboardUpFunc(keyboardUpFunction);
 	glutSpecialFunc(keyboardSpecFunction);

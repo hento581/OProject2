@@ -232,7 +232,7 @@ void init(void)
 
 	// GL inits
 	glClearColor(0.2,0.2,0.5,0);
-	//glEnable(GL_DEPTH_TEST); //TODO: This creates the error of trees not being transperant to each other
+	glEnable(GL_DEPTH_TEST); //TODO: This creates the error of trees not being transperant to each other
 	glDisable(GL_CULL_FACE);
 	
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -361,6 +361,7 @@ void display(void)
 	DrawModel(tm, program, "inPosition", "inNormal", "inTexCoord");
 
 	glUseProgram(treeProgram);
+	glDisable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
 	glActiveTexture(GL_TEXTURE4);
 	glBindTexture(GL_TEXTURE_2D, treeTex);
@@ -375,6 +376,7 @@ void display(void)
 	}
 
 	glDisable(GL_BLEND);
+	glEnable(GL_DEPTH_TEST);
 	glutSwapBuffers();
 	
 }
