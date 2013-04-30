@@ -104,18 +104,18 @@ Model* billboardModel(void)
 	int vertexCount = 4;
 	int triangleCount = 2;
 	
-	GLfloat vertexArray[] = { -0.5f,3.0f,0.0f,
-						     0.5f,3.0f,0.0f,
-						    -0.5f,0.0f,0.0f,
-							 0.5f,0.0f,0.0f};
+	GLfloat vertexArray[] = { -1.0f,5.0f,0.0f,
+						     1.0f,5.0f,0.0f,
+						    -1.0f,0.0f,0.0f,
+							 1.0f,0.0f,0.0f};
 	GLfloat normalArray[] = { 0.0f,0.0f,1.0f,
 						     0.0f,0.0f,1.0f,
 						     0.0f,0.0f,1.0f,
 							 0.0f,0.0f,1.0f,};
-	GLfloat texCoordArray[] = { 0.0f,1.0f,
-								1.0f,1.0f,
+	GLfloat texCoordArray[] = { 1.0f,0.0f,
 								0.0f,0.0f,
-								1.0f,0.0f};
+								1.0f,1.0f,
+								0.0f,1.0f};
 
 	GLuint indexArray[] = { 0,1,2,1,2,3};
 
