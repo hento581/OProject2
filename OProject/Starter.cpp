@@ -255,15 +255,16 @@ void DrawBillboard(Model* bm, int inx, int inz, mat4 view)
 	//z = z + randZ;
 
 	vec3 billVec = VectorSub(player->getPos(),vec3(x,0,z));
-	if(Norm(billVec) < treeRenderingDistance)
+	vec3 playerLookAt = VectorSub(player->getPos(),player->getLook());
+	billVec.y = 0;	
+	playerLookAt.y = 0;
+	if(Norm(billVec) < treeRenderingDistance && DotProduct(playerLookAt,billVec) > 0)
 	{
-		billVec.y = 0;	
+		//billVec = playerLookAt;
 		
 		billVec = Normalize(billVec);
-		vec3 playerLookAt = VectorSub(player->getPos(),player->getLook());
+		
 		playerLookAt.y = 0.0;
-		GLfloat lookAngle = DotProduct(Normalize(playerLookAt),billVec);
-		if(lookAngle>0.0){
 
 			mat4 translate=  T(x, world->findHeight(x, z), z);
 			view = Mult(view, translate);
@@ -282,7 +283,6 @@ void DrawBillboard(Model* bm, int inx, int inz, mat4 view)
 			glUniformMatrix4fv(glGetUniformLocation(treeProgram, "mdlMatrix"), 1, GL_TRUE, view.m);
 
 			DrawModel(bm, treeProgram, "inPosition",  NULL, "inTexCoord"); //TODO: put NULL instead of "inNormal" here to make it work..
-		}
 	}
 
 }
