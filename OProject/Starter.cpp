@@ -103,7 +103,7 @@ bool posIsTree[254][254];
 unsigned int vertexArrayObjID;
 
 // vertex array object
-Model *m, *m2, *tm, *bill, *tree, *sky, *map;
+Model *m, *m2, *tm, *bill, *tree, *sky, *map, *control;
 
 // Reference to shader program
 
@@ -146,6 +146,51 @@ Model* billboardModel(void)
 
 	return m;
 }
+
+Model* controlModel(void)
+{
+	int vertexCount = 6;
+	int triangleCount = 6;
+	
+	GLfloat vertexArray[] = {0.0f,-0.1f,0.0866f,
+							 0.1f,-0.1f,-0.0866f,
+							-0.1f,-0.1f,-0.0866f,
+							0.0f,0.1f,0.0866f,
+							 0.1f,0.1f,-0.0866f,
+							 -0.1f,0.1f,-0.0866f};
+	GLfloat normalArray[] = {0.0f,0.0f,0.0866f,
+							 0.1f,0.0f,-0.0866f,
+							-0.1f,0.0f,-0.0866f,
+							0.0f,0.0f,0.0866f,
+							 0.1f,0.0f,-0.0866f,
+							 -0.1f,0.0f,-0.0866f};
+	GLfloat texCoordArray[] = { 0.0f,0.0f,
+								0.0f,0.3333f,
+								0.0f,0.6667f,
+								1.0f,0.0f,
+								1.0f,0.3333f,
+								1.0f,0.6667f};
+
+	GLuint indexArray[] = { 0,3,2,
+							3,5,2,
+							2,5,1,
+							5,4,1,
+							1,4,0,
+							4,3,0};
+
+	Model* m = LoadDataToModel(
+			vertexArray,
+			normalArray,
+			texCoordArray,
+			NULL,
+			indexArray,
+			vertexCount,
+			triangleCount*3);
+
+	return m;
+}
+
+
 
 Model* mapModel(void)
 {
@@ -381,7 +426,6 @@ void DrawBillboard(Model* bm, int inx, int inz, mat4 view)
 	
 			glUniformMatrix4fv(glGetUniformLocation(billBoardProgram, "camMatrix"), 1, GL_TRUE, player->getCamMatrix().m);
 			glUniformMatrix4fv(glGetUniformLocation(billBoardProgram, "mdlMatrix"), 1, GL_TRUE, view.m);
-
 			DrawModel(bm, billBoardProgram, "inPosition",  NULL, "inTexCoord"); //TODO: put NULL instead of "inNormal" here to make it work..
 	}
 
@@ -590,6 +634,7 @@ void display(void)
 	glUniform1i(glGetUniformLocation(skyProgram, "tex1"), 5);
 
 	DrawModel(sky, skyProgram, "inPosition", NULL, "inTexCoord");
+	
 	glEnable(GL_DEPTH_TEST);
 	
 	glUseProgram(program);
