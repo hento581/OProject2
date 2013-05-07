@@ -69,6 +69,8 @@ void BuildModelVAO(Model *m,
 
 void CenterModel(Model *m);
 
+GLuint LoadBMPTexture( const char* filename, int width, int height);
+
 
 #endif
 
