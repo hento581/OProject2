@@ -98,7 +98,7 @@ bool posIsTree[254][254];
 unsigned int vertexArrayObjID;
 
 // vertex array object
-Model *m, *m2, *tm, *bill, *tree, *sky, *map;
+Model *m, *m2, *tm, *bill, *tree, *sky, *map, *control;
 
 // Reference to shader program
 
@@ -469,6 +469,8 @@ void init(void)
 	sky = LoadModelPlus("skybox.obj");
 	LoadTGATextureSimple("SkyBox5122.tga", &skyTex);
 
+	control = LoadModelPlus("control.obj");
+
 	printError("init terrain");
 
 	
@@ -527,6 +529,7 @@ void display(void)
 	glUniform1i(glGetUniformLocation(skyProgram, "tex1"), 5);
 
 	DrawModel(sky, skyProgram, "inPosition", NULL, "inTexCoord");
+	DrawModel(control, treeProgram, "inPosition", NULL, "inTexCoord");
 	glEnable(GL_DEPTH_TEST);
 	
 	glUseProgram(program);
