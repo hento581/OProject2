@@ -9,7 +9,7 @@
 #include "Player.h"
 #include "World.h"
 #include <time.h>
-#include "stb_image.cpp"
+#include "LoadTexture.cpp"
 
 
 #define near 0.2
@@ -70,7 +70,7 @@ Player* player = new Player;
 //Skpa world
 World* world = new World;
 
-GLuint program, treeProgram, skyProgram;
+GLuint program, billBoardProgram, skyProgram;
 
 GLfloat vertices[] = { -0.5f,-0.5f,0.0f,
 						-0.5f,0.5f,0.0f,
@@ -179,16 +179,28 @@ void keyboardFunction (unsigned char key, int xmouse, int ymouse)
 		case 'w':
 			wIsDown = true;
 		break;
+		case 'W':
+			wIsDown = true;
+		break;
 		case 's':
+			sIsDown = true;
+		break;
+		case 'S':
 			sIsDown = true;
 		break;
 		case 'a':
 			aIsDown = true;
 		break;
+		case 'A':
+			aIsDown = true;
+		break;
 		case 'd':
 			dIsDown = true;
 		break;	 
-		case 'q':
+		case 'D':
+			dIsDown = true;
+		break;	
+		case 'p':
 			exit(0);
 		break;
 		case ' ':
@@ -214,13 +226,25 @@ void keyboardUpFunction (unsigned char key, int xmouse, int ymouse)
 		case 'w':
 			wIsDown = false;
 		break;
+		case 'W':
+			wIsDown = false;
+		break;
 		case 's':
+			sIsDown = false;
+		break;
+		case 'S':
 			sIsDown = false;
 		break;
 		case 'a':
 			aIsDown = false;
 		break;
+		case 'A':
+			aIsDown = false;
+		break;
 		case 'd':
+			dIsDown = false;
+		break;
+		case 'D':
 			dIsDown = false;
 		break;
 		case ' ':
@@ -326,10 +350,10 @@ void DrawBillboard(Model* bm, int inx, int inz, mat4 view)
 
 			view = Mult(view,billRotMat);
 	
-			glUniformMatrix4fv(glGetUniformLocation(treeProgram, "camMatrix"), 1, GL_TRUE, player->getCamMatrix().m);
-			glUniformMatrix4fv(glGetUniformLocation(treeProgram, "mdlMatrix"), 1, GL_TRUE, view.m);
+			glUniformMatrix4fv(glGetUniformLocation(billBoardProgram, "camMatrix"), 1, GL_TRUE, player->getCamMatrix().m);
+			glUniformMatrix4fv(glGetUniformLocation(billBoardProgram, "mdlMatrix"), 1, GL_TRUE, view.m);
 
-			DrawModel(bm, treeProgram, "inPosition",  NULL, "inTexCoord"); //TODO: put NULL instead of "inNormal" here to make it work..
+			DrawModel(bm, billBoardProgram, "inPosition",  NULL, "inTexCoord"); //TODO: put NULL instead of "inNormal" here to make it work..
 	}
 
 }
@@ -368,10 +392,10 @@ void DrawMap(Model* map, mat4 view, GLfloat mapAngle)
 		//Rotate map 
 		view = Mult(view,ArbRotate(vec3(0,0,1), mapAngle));
 
-		glUniformMatrix4fv(glGetUniformLocation(treeProgram, "camMatrix"), 1, GL_TRUE, player->getCamMatrix().m);
-		glUniformMatrix4fv(glGetUniformLocation(treeProgram, "mdlMatrix"), 1, GL_TRUE, view.m);
+		glUniformMatrix4fv(glGetUniformLocation(billBoardProgram, "camMatrix"), 1, GL_TRUE, player->getCamMatrix().m);
+		glUniformMatrix4fv(glGetUniformLocation(billBoardProgram, "mdlMatrix"), 1, GL_TRUE, view.m);
 
-		DrawModel(map, treeProgram, "inPosition",  NULL, "inTexCoord"); 
+		DrawModel(map, billBoardProgram, "inPosition",  NULL, "inTexCoord"); 
 
 }
 
@@ -422,7 +446,7 @@ void init(void)
 	
 	// Load and compile shader
 	program = loadShaders("terrain.vert", "terrain.frag");
-	treeProgram = loadShaders("treeShader.vert", "treeShader.frag");
+	billBoardProgram = loadShaders("billBoardShader.vert", "billBoardShader.frag");
 	skyProgram = loadShaders("skyShader.vert", "skyShader.frag");
 	glUseProgram(program);
 	printError("init shader");
@@ -456,8 +480,8 @@ void init(void)
 		}
 	}
 
-	glUseProgram(treeProgram);
-	glUniformMatrix4fv(glGetUniformLocation(treeProgram, "projMatrix"), 1, GL_TRUE, projectionMatrix.m);
+	glUseProgram(billBoardProgram);
+	glUniformMatrix4fv(glGetUniformLocation(billBoardProgram, "projMatrix"), 1, GL_TRUE, projectionMatrix.m);
 	bill = billboardModel();
 	map = mapModel();
 
@@ -550,11 +574,11 @@ void display(void)
 	glUniform1i(glGetUniformLocation(program, "tex3"), 3);
 	DrawModel(tm, program, "inPosition", "inNormal", "inTexCoord");
 
-	glUseProgram(treeProgram);
+	glUseProgram(billBoardProgram);
 	glEnable(GL_ALPHA_TEST);
 	glActiveTexture(GL_TEXTURE4);
 	glBindTexture(GL_TEXTURE_2D, treeTex);
-	glUniform1i(glGetUniformLocation(treeProgram, "tex1"), 4);
+	glUniform1i(glGetUniformLocation(billBoardProgram, "tex1"), 4);
 
 	for(int x=2; x<254; x=x+3)
 	{
@@ -572,7 +596,7 @@ void display(void)
 
 	glActiveTexture(GL_TEXTURE5);
 	glBindTexture(GL_TEXTURE_2D, mapTex);
-	glUniform1i(glGetUniformLocation(treeProgram, "tex1"), 5);
+	glUniform1i(glGetUniformLocation(billBoardProgram, "tex1"), 5);
 
 	if(showMap)
 	{
