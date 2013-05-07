@@ -9,6 +9,7 @@
 #include "Player.h"
 #include "World.h"
 #include <time.h>
+#include "stb_image.cpp"
 
 
 #define near 0.2
@@ -102,6 +103,11 @@ Model *m, *m2, *tm, *bill, *tree, *sky;
 
 GLuint tex1, tex2,tex3,tex4, treeTex, skyTex;
 TextureData ttex; // terrain
+
+// Map texture
+int mapWidth, mapHeight, mapN;
+unsigned char* data = stbi_load("curves.bmp", &mapWidth, &mapHeight, &mapN, 4); // request RGBA
+
 
 Model* billboardModel(void)
 {
@@ -394,6 +400,23 @@ void display(void)
 	printError("pre display");
 
 		modelView= IdentityMatrix();
+	/*	glEnable(GL_TEXTURE_2D);
+
+		
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, mapWidth, mapHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+			glBegin(GL_QUADS);
+
+			glTexCoord2f(0.0, 0.0); glVertex3f(-2.0, -1.0, 0.0);
+			glTexCoord2f(0.0, 1.0); glVertex3f(-2.0, 1.0, 0.0);
+			glTexCoord2f(1.0, 1.0); glVertex3f(0.0, 1.0, 0.0);
+			glTexCoord2f(1.0, 0.0); glVertex3f(0.0, -1.0, 0.0);
+
+			glEnd();
+		
+		
+
+		glDisable(GL_TEXTURE_2D);*/
+
 //Sky box
 
 	glUseProgram(skyProgram);
