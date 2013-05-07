@@ -12,6 +12,7 @@ Player::Player(Point3D p, Point3D l, World* world)
 	this->look = l;
 	this->w = world;
 	oldSpeed= vec3(0,0,0);
+	this->hitTree = 0;
 }
 
 Player::~Player(void)
@@ -70,27 +71,39 @@ void Player::goForward(void)
 		oldSpeed = move;
 		pos = VectorAdd(0.01*move, pos);
 		look = VectorAdd(0.01*move, look);*/
-		for(int i = 1; i<=10; i++)
+		if(this->hitTree == 0)
 		{
-				pos = VectorAdd(ScalarMult(move,0.01), pos);
-				look = VectorAdd(ScalarMult(move,0.01), look);
-				if(w->findHeight(pos.x,pos.z) >= h+0.03)
-					i=30;
+			for(int i = 1; i<=10; i++)
+			{
+					pos = VectorAdd(ScalarMult(move,0.01), pos);
+					look = VectorAdd(ScalarMult(move,0.01), look);
+					if(w->findHeight(pos.x,pos.z) >= h+0.03)
+						i=30;
+			}
+			
 		}
-		for(int i = 1; i<=10; i++)
+			
+		
+		else
 		{
-				pos = VectorAdd(ScalarMult(move,0.01), pos);
-				look = VectorAdd(ScalarMult(move,0.01), look);
-				if(w->findHeight(pos.x,pos.z) >= h+0.01)
-					i=30;
+			this->hitTree--;
+
 		}
+
+		for(int i = 1; i<=10; i++)
+			{
+					pos = VectorAdd(ScalarMult(move,0.01), pos);
+					look = VectorAdd(ScalarMult(move,0.01), look);
+					if(w->findHeight(pos.x,pos.z) >= h+0.01)
+						i=30;
+			}
 		for(int i = 1; i<=5; i++)
-		{
-				pos = VectorAdd(ScalarMult(move,0.01), pos);
-				look = VectorAdd(ScalarMult(move,0.01), look);
-				if(w->findHeight(pos.x,pos.z) >= h)
-					i=30;
-		}
+			{
+					pos = VectorAdd(ScalarMult(move,0.01), pos);
+					look = VectorAdd(ScalarMult(move,0.01), look);
+					if(w->findHeight(pos.x,pos.z) >= h)
+						i=30;
+			}
 		oldSpeed = VectorSub(pos,oldPos);
 		look.y = look.y - pos.y + w->findHeight(pos.x,pos.z);
 		pos.y = w->findHeight(pos.x,pos.z);
@@ -124,3 +137,15 @@ look = VectorAdd(pos, lookVec);
 look = VectorAdd(look, ScalarMult(rightVec, xdiff));
 look = VectorAdd(look, ScalarMult(upVec, ydiff));
 }
+
+void Player::setOldSpeed(Point3D newOldSpeed)
+{
+	oldSpeed = newOldSpeed;
+
+}
+
+void Player::playerHitTree(void){
+
+	this->hitTree = 5;
+}
+

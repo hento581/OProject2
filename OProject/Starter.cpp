@@ -106,7 +106,7 @@ TextureData ttex; // terrain
 
 // Map texture
 int mapWidth, mapHeight, mapN;
-unsigned char* data = stbi_load("curves.bmp", &mapWidth, &mapHeight, &mapN, 4); // request RGBA
+
 
 
 Model* billboardModel(void)
@@ -192,6 +192,11 @@ void keyboardFunction (unsigned char key, int xmouse, int ymouse)
 		break;
 		case ' ':
 			jumping = true;
+		break;
+		case 'y':
+			
+			player->setOldSpeed(vec3(0,0,0));
+			player->playerHitTree();
 		break;
 		default:
 		 break;
@@ -351,6 +356,24 @@ void DrawMap(Model* map, mat4 view)
 
 }
 
+bool nearTree()
+{
+	Point3D currentPos = player->getPos();
+	currentPos.y = 0;
+	Point3D treePos = currentPos;
+	treePos.x = floor(currentPos.x);
+	treePos.z = floor(currentPos.z);
+	Point3D actualTreePos = vec3(treePos.x,0,treePos.z);
+	actualTreePos.x += randXZ->xz[(int)treePos.x][(int) treePos.z].x;
+	actualTreePos.z += randXZ->xz[(int)treePos.x][(int) treePos.z].z;
+
+	Point3D vecFromTree = VectorSub(currentPos, actualTreePos);
+	int distFromTree = Norm(vecFromTree);
+	if(distFromTree < 0.2) return true;
+	else return false;
+	
+}
+
 void init(void)
 {
 
@@ -419,8 +442,8 @@ void init(void)
 	bill = billboardModel();
 	map = mapModel();
 
-	LoadTGATextureSimple("tree.tga", &treeTex);
-
+	//LoadTGATextureSimple("tree.tga", &treeTex);
+	treeTex = LoadTexture("curves.bmp");
 
 	glUseProgram(skyProgram);
 	glUniformMatrix4fv(glGetUniformLocation(skyProgram, "projMatrix"), 1, GL_TRUE, projectionMatrix.m);
@@ -436,6 +459,7 @@ void display(void)
 {
 	if(wIsDown) 
 	{
+		if(nearTree()) player->playerHitTree();
 		player->goForward();
 		
 	}
@@ -538,7 +562,7 @@ void display(void)
 		}
 	}
 	
-	DrawMap(map,modelView);
+	//DrawMap(map,modelView);
 	
 	glDisable(GL_ALPHA_TEST);
 
