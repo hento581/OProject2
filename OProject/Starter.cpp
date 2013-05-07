@@ -102,7 +102,7 @@ Model *m, *m2, *tm, *bill, *tree, *sky, *map;
 
 // Reference to shader program
 
-GLuint tex1, tex2,tex3,tex4, treeTex, skyTex;
+GLuint tex1, tex2,tex3,tex4, treeTex, skyTex, mapTex;
 TextureData ttex; // terrain
 
 // Map texture
@@ -461,8 +461,8 @@ void init(void)
 	bill = billboardModel();
 	map = mapModel();
 
-	//LoadTGATextureSimple("tree.tga", &treeTex);
-	treeTex = LoadTexture("curves.bmp");
+	LoadTGATextureSimple("tree.tga", &treeTex);
+	mapTex = LoadTexture("curves.bmp");
 
 	glUseProgram(skyProgram);
 	glUniformMatrix4fv(glGetUniformLocation(skyProgram, "projMatrix"), 1, GL_TRUE, projectionMatrix.m);
@@ -555,7 +555,7 @@ void display(void)
 	glActiveTexture(GL_TEXTURE4);
 	glBindTexture(GL_TEXTURE_2D, treeTex);
 	glUniform1i(glGetUniformLocation(treeProgram, "tex1"), 4);
-/*
+
 	for(int x=2; x<254; x=x+3)
 	{
 		for(int z=2; z<254; z=z+3)
@@ -565,10 +565,15 @@ void display(void)
 			}
 		}
 	}
-*/
-	glEnable(GL_TEXTURE_2D);
+
+	/*glEnable(GL_TEXTURE_2D);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, mapWidth, mapHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-	glDisable(GL_TEXTURE_2D);
+	glDisable(GL_TEXTURE_2D);*/
+
+	glActiveTexture(GL_TEXTURE5);
+	glBindTexture(GL_TEXTURE_2D, mapTex);
+	glUniform1i(glGetUniformLocation(treeProgram, "tex1"), 5);
+
 	if(showMap)
 	{
 			DrawMap(map,modelView,1); 
