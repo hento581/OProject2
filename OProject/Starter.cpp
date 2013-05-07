@@ -9,7 +9,7 @@
 #include "Player.h"
 #include "World.h"
 #include <time.h>
-#include "LoadTexture.cpp"
+
 
 
 #define near 0.2
