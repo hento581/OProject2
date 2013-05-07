@@ -142,6 +142,51 @@ Model* billboardModel(void)
 	return m;
 }
 
+Model* controlModel(void)
+{
+	int vertexCount = 6;
+	int triangleCount = 6;
+	
+	GLfloat vertexArray[] = {0.0f,-0.1f,0.0866f,
+							 0.1f,-0.1f,-0.0866f,
+							-0.1f,-0.1f,-0.0866f,
+							0.0f,0.1f,0.0866f,
+							 0.1f,0.1f,-0.0866f,
+							 -0.1f,0.1f,-0.0866f};
+	GLfloat normalArray[] = {0.0f,0.0f,0.0866f,
+							 0.1f,0.0f,-0.0866f,
+							-0.1f,0.0f,-0.0866f,
+							0.0f,0.0f,0.0866f,
+							 0.1f,0.0f,-0.0866f,
+							 -0.1f,0.0f,-0.0866f};
+	GLfloat texCoordArray[] = { 0.0f,0.0f,
+								0.0f,0.3333f,
+								0.0f,0.6667f,
+								1.0f,0.0f,
+								1.0f,0.3333f,
+								1.0f,0.6667f};
+
+	GLuint indexArray[] = { 0,3,2,
+							3,5,2,
+							2,5,1,
+							5,4,1,
+							1,4,0,
+							4,3,0};
+
+	Model* m = LoadDataToModel(
+			vertexArray,
+			normalArray,
+			texCoordArray,
+			NULL,
+			indexArray,
+			vertexCount,
+			triangleCount*3);
+
+	return m;
+}
+
+
+
 Model* mapModel(void)
 {
 	int vertexCount = 4;
@@ -352,7 +397,6 @@ void DrawBillboard(Model* bm, int inx, int inz, mat4 view)
 	
 			glUniformMatrix4fv(glGetUniformLocation(billBoardProgram, "camMatrix"), 1, GL_TRUE, player->getCamMatrix().m);
 			glUniformMatrix4fv(glGetUniformLocation(billBoardProgram, "mdlMatrix"), 1, GL_TRUE, view.m);
-
 			DrawModel(bm, billBoardProgram, "inPosition",  NULL, "inTexCoord"); //TODO: put NULL instead of "inNormal" here to make it work..
 	}
 
@@ -493,8 +537,6 @@ void init(void)
 	sky = LoadModelPlus("skybox.obj");
 	LoadTGATextureSimple("SkyBox5122.tga", &skyTex);
 
-	control = LoadModelPlus("control.obj");
-
 	printError("init terrain");
 
 	
@@ -553,7 +595,7 @@ void display(void)
 	glUniform1i(glGetUniformLocation(skyProgram, "tex1"), 5);
 
 	DrawModel(sky, skyProgram, "inPosition", NULL, "inTexCoord");
-	DrawModel(control, treeProgram, "inPosition", NULL, "inTexCoord");
+	
 	glEnable(GL_DEPTH_TEST);
 	
 	glUseProgram(program);
