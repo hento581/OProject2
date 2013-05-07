@@ -21,13 +21,16 @@
 
  
 
-mat4 projectionMatrix;
+mat4 projectionMatrix, mapRotation;
+
 
 //För keyboard
 bool wIsDown = false;
 bool sIsDown = false;
 bool aIsDown = false;
 bool dIsDown = false;
+bool qIsDown = false;
+bool eIsDown = false;
 bool showMap = false;
 
 
@@ -35,6 +38,8 @@ bool showMap = false;
 GLfloat jump = 0.0;
 
 int treeRenderingDistance = 50;
+
+GLfloat mapAngle=0.0;
 
 //För gravitation
 GLfloat lastHeight = -999.0;
@@ -200,6 +205,18 @@ void keyboardFunction (unsigned char key, int xmouse, int ymouse)
 		case 'D':
 			dIsDown = true;
 		break;	
+		case 'q':
+			qIsDown = true;
+		break;
+		case 'Q':
+			qIsDown = true;
+		break;
+		case 'e':
+			eIsDown = true;
+		break;
+		case 'E':
+			eIsDown = true;
+		break;
 		case 'p':
 			exit(0);
 		break;
@@ -246,6 +263,18 @@ void keyboardUpFunction (unsigned char key, int xmouse, int ymouse)
 		break;
 		case 'D':
 			dIsDown = false;
+		break;
+		case 'q':
+			qIsDown = false;
+		break;
+		case 'Q':
+			qIsDown = false;
+		break;
+		case 'e':
+			eIsDown = false;
+		break;
+		case 'E':
+			eIsDown = false;
 		break;
 		case ' ':
 			showMap = false;
@@ -358,7 +387,7 @@ void DrawBillboard(Model* bm, int inx, int inz, mat4 view)
 
 }
 
-void DrawMap(Model* map, mat4 view, GLfloat mapAngle)
+void DrawMap(Model* map, mat4 view)
 {
 		vec3 mapNorm = vec3(0,0,1);
 		vec3 camPos = VectorAdd(player->getPos(),vec3(0,2.0,0));
@@ -391,6 +420,8 @@ void DrawMap(Model* map, mat4 view, GLfloat mapAngle)
 		
 		//Rotate map 
 		view = Mult(view,ArbRotate(vec3(0,0,1), mapAngle));
+		
+
 
 		glUniformMatrix4fv(glGetUniformLocation(billBoardProgram, "camMatrix"), 1, GL_TRUE, player->getCamMatrix().m);
 		glUniformMatrix4fv(glGetUniformLocation(billBoardProgram, "mdlMatrix"), 1, GL_TRUE, view.m);
@@ -512,6 +543,14 @@ void display(void)
 	{
 			player->goBackwards();
 	}
+	if(qIsDown) 
+	{
+		mapAngle+=0.02;	
+	}
+	if(eIsDown)
+	{
+			mapAngle-=0.02;
+	}
 	if(jumping)
 	{
 			player->jump();
@@ -600,7 +639,7 @@ void display(void)
 
 	if(showMap)
 	{
-			DrawMap(map,modelView,1); 
+			DrawMap(map,modelView); 
 	}
 	
 	
