@@ -486,7 +486,7 @@ void init(void)
 	map = mapModel();
 
 	LoadTGATextureSimple("tree.tga", &treeTex);
-	mapTex = LoadTexture("curves.bmp");
+	mapTex = LoadBMPTexture("curves.bmp", 512, 512);
 
 	glUseProgram(skyProgram);
 	glUniformMatrix4fv(glGetUniformLocation(skyProgram, "projMatrix"), 1, GL_TRUE, projectionMatrix.m);
