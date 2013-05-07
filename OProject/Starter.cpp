@@ -28,6 +28,7 @@ bool wIsDown = false;
 bool sIsDown = false;
 bool aIsDown = false;
 bool dIsDown = false;
+bool showMap = false;
 
 
 
@@ -146,10 +147,10 @@ Model* mapModel(void)
 	int vertexCount = 4;
 	int triangleCount = 2;
 	
-	GLfloat vertexArray[] = { -1.0f,1.0f,0.0f,
-							 1.0f,1.0f,0.0f,
-							-1.0f,0.0f,0.0f,
-							 1.0f,0.0f,0.0f};
+	GLfloat vertexArray[] = { -0.4f,0.4f,0.0f,
+							 0.4f,0.4f,0.0f,
+							-0.4f,-0.4f,0.0f,
+							 0.4f,-0.4f,0.0f};
 	GLfloat normalArray[] = { 0.0f,0.0f,1.0f,
 							 0.0f,0.0f,1.0f,
 							 0.0f,0.0f,1.0f,
@@ -191,6 +192,9 @@ void keyboardFunction (unsigned char key, int xmouse, int ymouse)
 			exit(0);
 		break;
 		case ' ':
+			showMap = true;
+		break;
+		case 'z':
 			jumping = true;
 		break;
 		default:
@@ -215,6 +219,9 @@ void keyboardUpFunction (unsigned char key, int xmouse, int ymouse)
 			dIsDown = false;
 		break;
 		case ' ':
+			showMap = false;
+		break; 
+		case 'z':
 			jumping = false;
 		break; 
 		default:
@@ -322,32 +329,44 @@ void DrawBillboard(Model* bm, int inx, int inz, mat4 view)
 
 }
 
-void DrawMap(Model* map, mat4 view)
+void DrawMap(Model* map, mat4 view, GLfloat mapAngle)
 {
-		vec3 playerLookAt = VectorSub(player->getPos(),player->getLook());
-		//playerLookAt.y = 0;
+		vec3 mapNorm = vec3(0,0,1);
+		vec3 camPos = VectorAdd(player->getPos(),vec3(0,2.0,0));
+		vec3 mapToCam = VectorSub(player->getPos(),player->getLook());
+		//Put map in front of the cam
+		vec3 mapPos = VectorSub(camPos,mapToCam);
+		mat4 translate=  T(mapPos.x,mapPos.y,mapPos.z);
+		view = Mult(view, translate);
 
-		vec3 billVec = playerLookAt;
-		
-		billVec = Normalize(billVec);
-
-			mat4 translate=  T(player->getLook().x, player->getLook().y+1.5, player->getLook().z);
-			view = Mult(view, translate);
-			vec3 billNorm = vec3(0,0,1);
-
-			vec3 upVec = CrossProduct(billNorm, billVec);
-			GLfloat cosAngle = DotProduct(billNorm, billVec);
-		
-			GLfloat angle = acos(cosAngle);
-		
-			mat4 billRotMat = ArbRotate(upVec, angle);
+		//Rotate in around Y-axis
+		vec3 mapToCamXZ = mapToCam;
+		mapToCamXZ.y = 0;
+		mapToCamXZ = Normalize(mapToCamXZ);
+		vec3 upVec = CrossProduct(mapNorm, mapToCamXZ);
+		GLfloat angle = acos(DotProduct(mapNorm, mapToCamXZ));
+		mat4 billRotMat = ArbRotate(upVec, angle);
 
 			view = Mult(view,billRotMat);
-	
-			glUniformMatrix4fv(glGetUniformLocation(treeProgram, "camMatrix"), 1, GL_TRUE, player->getCamMatrix().m);
-			glUniformMatrix4fv(glGetUniformLocation(treeProgram, "mdlMatrix"), 1, GL_TRUE, view.m);
 
-			DrawModel(map, treeProgram, "inPosition",  NULL, "inTexCoord"); 
+		//Rotate in around XZ-axis
+		mapToCam = Normalize(mapToCam);
+		angle = acos(DotProduct(mapToCamXZ,mapToCam));
+		
+			if (mapToCam.y < 0)
+				billRotMat = ArbRotate(vec3(1,0,0), angle);	
+			else
+				billRotMat = ArbRotate(vec3(-1,0,0), angle);
+
+		view = Mult(view,billRotMat);
+		
+		//Rotate map 
+		view = Mult(view,ArbRotate(vec3(0,0,1), mapAngle));
+
+		glUniformMatrix4fv(glGetUniformLocation(treeProgram, "camMatrix"), 1, GL_TRUE, player->getCamMatrix().m);
+		glUniformMatrix4fv(glGetUniformLocation(treeProgram, "mdlMatrix"), 1, GL_TRUE, view.m);
+
+		DrawModel(map, treeProgram, "inPosition",  NULL, "inTexCoord"); 
 
 }
 
@@ -459,22 +478,7 @@ void display(void)
 	printError("pre display");
 
 		modelView= IdentityMatrix();
-	/*	glEnable(GL_TEXTURE_2D);
 
-		
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, mapWidth, mapHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-			glBegin(GL_QUADS);
-
-			glTexCoord2f(0.0, 0.0); glVertex3f(-2.0, -1.0, 0.0);
-			glTexCoord2f(0.0, 1.0); glVertex3f(-2.0, 1.0, 0.0);
-			glTexCoord2f(1.0, 1.0); glVertex3f(0.0, 1.0, 0.0);
-			glTexCoord2f(1.0, 0.0); glVertex3f(0.0, -1.0, 0.0);
-
-			glEnd();
-		
-		
-
-		glDisable(GL_TEXTURE_2D);*/
 
 //Sky box
 
@@ -527,7 +531,7 @@ void display(void)
 	glActiveTexture(GL_TEXTURE4);
 	glBindTexture(GL_TEXTURE_2D, treeTex);
 	glUniform1i(glGetUniformLocation(treeProgram, "tex1"), 4);
-
+/*
 	for(int x=2; x<254; x=x+3)
 	{
 		for(int z=2; z<254; z=z+3)
@@ -537,8 +541,15 @@ void display(void)
 			}
 		}
 	}
+*/
+	glEnable(GL_TEXTURE_2D);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, mapWidth, mapHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+	glDisable(GL_TEXTURE_2D);
+	if(showMap)
+	{
+			DrawMap(map,modelView,1); 
+	}
 	
-	DrawMap(map,modelView);
 	
 	glDisable(GL_ALPHA_TEST);
 
