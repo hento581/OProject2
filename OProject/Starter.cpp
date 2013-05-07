@@ -96,7 +96,7 @@ bool posIsTree[254][254];
 unsigned int vertexArrayObjID;
 
 // vertex array object
-Model *m, *m2, *tm, *bill, *tree, *sky;
+Model *m, *m2, *tm, *bill, *tree, *sky, *map;
 
 // Reference to shader program
 
@@ -105,9 +105,6 @@ TextureData ttex; // terrain
 
 Model* billboardModel(void)
 {
-
-	
-
 	int vertexCount = 4;
 	int triangleCount = 2;
 	
@@ -135,6 +132,37 @@ Model* billboardModel(void)
 			vertexCount,
 			triangleCount*3);
 
+	return m;
+}
+
+Model* mapModel(void)
+{
+	int vertexCount = 4;
+	int triangleCount = 2;
+	
+	GLfloat vertexArray[] = { -1.0f,1.0f,0.0f,
+							 1.0f,1.0f,0.0f,
+							-1.0f,0.0f,0.0f,
+							 1.0f,0.0f,0.0f};
+	GLfloat normalArray[] = { 0.0f,0.0f,1.0f,
+							 0.0f,0.0f,1.0f,
+							 0.0f,0.0f,1.0f,
+							 0.0f,0.0f,1.0f,};
+	GLfloat texCoordArray[] = { 1.0f,0.0f,
+								0.0f,0.0f,
+								1.0f,1.0f,
+								0.0f,1.0f};
+
+	GLuint indexArray[] = { 0,1,2,1,2,3};
+
+	Model* m = LoadDataToModel(
+			vertexArray,
+			normalArray,
+			texCoordArray,
+			NULL,
+			indexArray,
+			vertexCount,
+			triangleCount*3);
 	return m;
 }
 
@@ -238,7 +266,8 @@ void DrawBillboard(Model* bm, int inx, int inz, mat4 view)
 
 	GLfloat x = (GLfloat) inx;
 	GLfloat z = (GLfloat) inz;
-	if(randXZ->xz[inx][(int)z].x < 0.0){
+	if(randXZ->xz[inx][(int)z].x < 0.0)
+	{
 		GLfloat randX;
 		GLfloat randZ;
 		TreeRandomNumberGen(&randX, &randZ, inx, inz);
@@ -284,6 +313,35 @@ void DrawBillboard(Model* bm, int inx, int inz, mat4 view)
 
 			DrawModel(bm, treeProgram, "inPosition",  NULL, "inTexCoord"); //TODO: put NULL instead of "inNormal" here to make it work..
 	}
+
+}
+
+void DrawMap(Model* map, mat4 view)
+{
+		vec3 playerLookAt = VectorSub(player->getPos(),player->getLook());
+		//playerLookAt.y = 0;
+
+		vec3 billVec = playerLookAt;
+		
+		billVec = Normalize(billVec);
+
+			mat4 translate=  T(player->getLook().x, player->getLook().y+1.5, player->getLook().z);
+			view = Mult(view, translate);
+			vec3 billNorm = vec3(0,0,1);
+
+			vec3 upVec = CrossProduct(billNorm, billVec);
+			GLfloat cosAngle = DotProduct(billNorm, billVec);
+		
+			GLfloat angle = acos(cosAngle);
+		
+			mat4 billRotMat = ArbRotate(upVec, angle);
+
+			view = Mult(view,billRotMat);
+	
+			glUniformMatrix4fv(glGetUniformLocation(treeProgram, "camMatrix"), 1, GL_TRUE, player->getCamMatrix().m);
+			glUniformMatrix4fv(glGetUniformLocation(treeProgram, "mdlMatrix"), 1, GL_TRUE, view.m);
+
+			DrawModel(map, treeProgram, "inPosition",  NULL, "inTexCoord"); 
 
 }
 
@@ -353,6 +411,7 @@ void init(void)
 	glUseProgram(treeProgram);
 	glUniformMatrix4fv(glGetUniformLocation(treeProgram, "projMatrix"), 1, GL_TRUE, projectionMatrix.m);
 	bill = billboardModel();
+	map = mapModel();
 
 	LoadTGATextureSimple("tree.tga", &treeTex);
 
@@ -455,7 +514,8 @@ void display(void)
 			}
 		}
 	}
-
+	
+	DrawMap(map,modelView);
 	
 	glDisable(GL_ALPHA_TEST);
 
