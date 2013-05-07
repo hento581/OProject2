@@ -79,6 +79,7 @@
   <ItemGroup>
     <ClCompile Include="GL_utilities.cpp" />
     <ClCompile Include="loadobj.cpp" />
+    <ClCompile Include="LoadTexture.cpp" />
     <ClCompile Include="LoadTGA2.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Starter.cpp" />
