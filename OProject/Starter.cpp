@@ -31,6 +31,7 @@ bool aIsDown = false;
 bool dIsDown = false;
 bool qIsDown = false;
 bool eIsDown = false;
+
 bool showMap = false;
 
 
@@ -262,6 +263,7 @@ void keyboardFunction (unsigned char key, int xmouse, int ymouse)
 		case 'E':
 			eIsDown = true;
 		break;
+		
 		case 'p':
 			exit(0);
 		break;
@@ -271,6 +273,7 @@ void keyboardFunction (unsigned char key, int xmouse, int ymouse)
 		case 'z':
 			jumping = true;
 		break;
+
 		case 'y':
 			
 			player->setOldSpeed(vec3(0,0,0));
@@ -321,6 +324,7 @@ void keyboardUpFunction (unsigned char key, int xmouse, int ymouse)
 		case 'E':
 			eIsDown = false;
 		break;
+	
 		case ' ':
 			showMap = false;
 		break; 
@@ -396,9 +400,6 @@ void DrawBillboard(Model* bm, int inx, int inz, mat4 view)
 	
 	x = x + randXZ->xz[inx][inz].x;
 	z = z + randXZ->xz[inx][inz].z;
-
-//	x = x + randX;
-	//z = z + randZ;
 
 	vec3 billVec = VectorSub(player->getPos(),vec3(x,0,z));
 	vec3 playerLookAt = VectorSub(player->getPos(),player->getLook());

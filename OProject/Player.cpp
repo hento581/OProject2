@@ -59,6 +59,7 @@ void Player::goForward(void)
 		GLfloat h = w->findHeight(pos.x,pos.z);
 		Point3D move = VectorSub(this->look, this->pos);
 		Point3D oldPos = pos;
+		Point3D oldLook = look;
 		//Point3D normal = w->findNormal(pos.x,pos.z,w->getModel()->vertexArray);
 		move.y = 0;
 		move= Normalize(move);
@@ -71,42 +72,51 @@ void Player::goForward(void)
 		oldSpeed = move;
 		pos = VectorAdd(0.01*move, pos);
 		look = VectorAdd(0.01*move, look);*/
-		if(this->hitTree == 0)
-		{
-			for(int i = 1; i<=10; i++)
+
+
+			if(this->hitTree == 0)
 			{
-					pos = VectorAdd(ScalarMult(move,0.01), pos);
-					look = VectorAdd(ScalarMult(move,0.01), look);
-					if(w->findHeight(pos.x,pos.z) >= h+0.03)
-						i=30;
-			}
+				for(int i = 1; i<=10; i++)
+				{
+						pos = VectorAdd(ScalarMult(move,0.01), pos);
+						look = VectorAdd(ScalarMult(move,0.01), look);
+						if(w->findHeight(pos.x,pos.z) >= h+0.03)
+							i=30;
+				}
 			
-		}
+			}
 			
 		
-		else
-		{
-			this->hitTree--;
-
-		}
-
-		for(int i = 1; i<=10; i++)
+			else
 			{
-					pos = VectorAdd(ScalarMult(move,0.01), pos);
-					look = VectorAdd(ScalarMult(move,0.01), look);
-					if(w->findHeight(pos.x,pos.z) >= h+0.01)
-						i=30;
+				this->hitTree--;
+
 			}
-		for(int i = 1; i<=5; i++)
+
+			for(int i = 1; i<=10; i++)
+				{
+						pos = VectorAdd(ScalarMult(move,0.01), pos);
+						look = VectorAdd(ScalarMult(move,0.01), look);
+						if(w->findHeight(pos.x,pos.z) >= h+0.01)
+							i=30;
+				}
+			for(int i = 1; i<=5; i++)
+				{
+						pos = VectorAdd(ScalarMult(move,0.01), pos);
+						look = VectorAdd(ScalarMult(move,0.01), look);
+						if(w->findHeight(pos.x,pos.z) >= h)
+							i=30;
+				}
+			oldSpeed = VectorSub(pos,oldPos);
+			look.y = look.y - pos.y + w->findHeight(pos.x,pos.z);
+			pos.y = w->findHeight(pos.x,pos.z);
+			if(pos.y <0.3)
 			{
-					pos = VectorAdd(ScalarMult(move,0.01), pos);
-					look = VectorAdd(ScalarMult(move,0.01), look);
-					if(w->findHeight(pos.x,pos.z) >= h)
-						i=30;
+				pos = oldPos;
+				look = oldLook;
+				oldSpeed = vec3(0,0,0);
 			}
-		oldSpeed = VectorSub(pos,oldPos);
-		look.y = look.y - pos.y + w->findHeight(pos.x,pos.z);
-		pos.y = w->findHeight(pos.x,pos.z);
+		
 	}
 }
 void Player::stop(void)
