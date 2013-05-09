@@ -13,6 +13,7 @@ Player::Player(Point3D p, Point3D l, World* world)
 	this->w = world;
 	oldSpeed= vec3(0,0,0);
 	this->hitTree = 0;
+	this->turbo = 0.0;
 }
 
 Player::~Player(void)
@@ -87,8 +88,8 @@ void Player::goForward(void)
 			{
 				for(int i = 1; i<=10; i++)
 				{
-						pos = VectorAdd(ScalarMult(move,0.01), pos);
-						look = VectorAdd(ScalarMult(move,0.01), look);
+						pos = VectorAdd(ScalarMult(move,0.01+turbo), pos);
+						look = VectorAdd(ScalarMult(move,0.01+turbo), look);
 						if(w->findHeight(pos.x,pos.z) >= h+0.03)
 							i=30;
 				}
@@ -104,27 +105,28 @@ void Player::goForward(void)
 
 			for(int i = 1; i<=10; i++)
 				{
-						pos = VectorAdd(ScalarMult(move,0.01), pos);
-						look = VectorAdd(ScalarMult(move,0.01), look);
+						pos = VectorAdd(ScalarMult(move,0.01+turbo), pos);
+						look = VectorAdd(ScalarMult(move,0.01+turbo), look);
 						if(w->findHeight(pos.x,pos.z) >= h+0.01)
 							i=30;
 				}
 			for(int i = 1; i<=5; i++)
 				{
-						pos = VectorAdd(ScalarMult(move,0.01), pos);
-						look = VectorAdd(ScalarMult(move,0.01), look);
+						pos = VectorAdd(ScalarMult(move,0.01+turbo), pos);
+						look = VectorAdd(ScalarMult(move,0.01+turbo), look);
 						if(w->findHeight(pos.x,pos.z) >= h)
 							i=30;
 				}
 			oldSpeed = VectorSub(pos,oldPos);
 			look.y = look.y - pos.y + w->findHeight(pos.x,pos.z);
 			pos.y = w->findHeight(pos.x,pos.z);
-			if(pos.y <0.3)
+			if(pos.y <0.3 || pos.x <0 || pos.x >255 || pos.z<0 || pos.z>255)
 			{
 				pos = oldPos;
 				look = oldLook;
 				oldSpeed = vec3(0,0,0);
 			}
+			
 		
 	}
 }
@@ -166,5 +168,11 @@ void Player::setOldSpeed(Point3D newOldSpeed)
 void Player::playerHitTree(void){
 
 	this->hitTree = 5;
+}
+
+void Player::setTurbo(GLfloat tempo)
+{
+
+	this->turbo = tempo;
 }
 

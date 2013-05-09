@@ -31,6 +31,7 @@ bool aIsDown = false;
 bool dIsDown = false;
 bool qIsDown = false;
 bool eIsDown = false;
+bool tIsDown = false;
 
 bool showMap = false;
 
@@ -273,6 +274,15 @@ void keyboardFunction (unsigned char key, int xmouse, int ymouse)
 		case 'z':
 			jumping = true;
 		break;
+		case 'Z':
+			jumping = true;
+		break;
+		case 't':
+			player->setTurbo(0.2);
+		break;
+		case 'T':
+			player->setTurbo(0.2);
+		break;
 
 		case 'y':
 			
@@ -331,6 +341,15 @@ void keyboardUpFunction (unsigned char key, int xmouse, int ymouse)
 		case 'z':
 			jumping = false;
 		break; 
+		case 'Z':
+			jumping = false;
+		break;
+		case 't':
+			player->setTurbo(0.0);
+		break;
+		case 'T':
+			player->setTurbo(0.0);
+		break;
 		default:
 		 break;
 	}

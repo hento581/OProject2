@@ -15,6 +15,7 @@ private:
 	Point3D oldSpeed;
 	World* w;
 	int hitTree;
+	GLfloat turbo;
 
 public:
 	Player(void);
@@ -33,6 +34,7 @@ public:
 	void goBackwards(void);
 	void stop(void);
 	void setOldSpeed(Point3D);
-	void Player::playerHitTree(void);
+	void playerHitTree(void);
+	void setTurbo(GLfloat);
 };
 
