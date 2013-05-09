@@ -22,6 +22,8 @@ Player::~Player(void)
 void Player::heightUpdate(void)
 {
 	// this->zspeed = this->zspeed - T*g; //TODO: fixa konstanter samt kollisionshantering med mark.
+	Point3D oldPos = pos;
+	Point3D oldLook = look;
 	pos.y = pos.y + yspeed;
 	look.y = look.y + yspeed;
 	if(pos.y > w->findHeight(pos.x,pos.z))
@@ -29,6 +31,13 @@ void Player::heightUpdate(void)
 		pos = VectorAdd(oldSpeed, pos);
 		look = VectorAdd(oldSpeed, look);
 		yspeed = yspeed - 0.02;
+		if(w->findHeight(pos.x,pos.z)<0.3)
+		{
+			pos = oldPos;
+			look = oldLook;
+			oldSpeed = vec3(0,0,0);
+		}
+
 	}
 
 	if(pos.y <= w->findHeight(pos.x,pos.z))

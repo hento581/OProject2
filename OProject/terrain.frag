@@ -12,7 +12,7 @@ in vec3 transformedNormal;
 
 void main(void)
 {
-	const vec3 light = 0.8*vec3(0.5, 0.5, 0.5);
+	const vec3 light = 0.8*vec3(0.1, 0.1, 1.0);
 	float shade = (dot(normalize(transformedNormal), light));
 	shade = max(0.0,shade)+0.8;
 
