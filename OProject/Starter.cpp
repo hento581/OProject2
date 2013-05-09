@@ -382,7 +382,8 @@ void DrawBillboard(Model* bm, int inx, int inz, mat4 view)
 
 	GLfloat x = (GLfloat) inx;
 	GLfloat z = (GLfloat) inz;
-	if(randXZ->xz[inx][(int)z].x < 0.0)
+
+	if(randXZ->xz[inx][(int)z].x == -9999.0)
 	{
 		GLfloat randX;
 		GLfloat randZ;
@@ -476,19 +477,29 @@ void DrawMap(Model* map, mat4 view)
 
 bool nearTree()
 {
-	Point3D currentPos = player->getPos();
-	currentPos.y = 0;
-	Point3D treePos = currentPos;
-	treePos.x = floor(currentPos.x);
-	treePos.z = floor(currentPos.z);
-	Point3D actualTreePos = vec3(treePos.x,0,treePos.z);
-	actualTreePos.x += randXZ->xz[(int)treePos.x][(int) treePos.z].x;
-	actualTreePos.z += randXZ->xz[(int)treePos.x][(int) treePos.z].z;
 
-	Point3D vecFromTree = VectorSub(currentPos, actualTreePos);
-	int distFromTree = Norm(vecFromTree);
-	if(distFromTree < 0.2) return true;
-	else return false;
+		Point3D currentPos = player->getPos();
+		currentPos.y = 0;
+		Point3D treePos = currentPos;
+		
+
+		for(int i=0; i < 2; i++){
+			for(int j=0; j < 2; j++){
+
+				treePos.x = floor(currentPos.x)+i;
+				treePos.z = floor(currentPos.z)+j;
+				Point3D actualTreePos = vec3(treePos.x,0,treePos.z);
+				actualTreePos.x += randXZ->xz[(int)treePos.x][(int) treePos.z].x;
+				actualTreePos.z += randXZ->xz[(int)treePos.x][(int) treePos.z].z;
+
+				Point3D vecFromTree = VectorSub(currentPos, actualTreePos);
+				int distFromTree = Norm(vecFromTree);
+				if(distFromTree < 0.2) return true;
+			}
+		}
+
+
+	return false;
 	
 }
 
@@ -515,6 +526,13 @@ void init(void)
 	projectionMatrix = frustum(left,right, bottom, top, near, far);
 
 
+	for(int i = 0; i<256; i++){
+		for(int j = 0; j<256; j++){
+			randXZ->xz[i][j].x=-9999.0;
+			randXZ->xz[i][j].z=-9999.0;
+		}
+
+	}
 
 	
 	
