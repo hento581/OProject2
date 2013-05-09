@@ -14,6 +14,7 @@ Player::Player(Point3D p, Point3D l, World* world)
 	oldSpeed= vec3(0,0,0);
 	this->hitTree = 0;
 	this->turbo = 0.0;
+	this->gravity = 1.0;
 }
 
 Player::~Player(void)
@@ -31,8 +32,8 @@ void Player::heightUpdate(void)
 	{
 		pos = VectorAdd(oldSpeed, pos);
 		look = VectorAdd(oldSpeed, look);
-		yspeed = yspeed - 0.02;
-		if(w->findHeight(pos.x,pos.z)<0.3)
+		yspeed = yspeed - 0.02*gravity;
+		if(w->findHeight(pos.x,pos.z)<0.3 || pos.x <0 || pos.x >255 || pos.z<0 || pos.z>255)
 		{
 			pos = oldPos;
 			look = oldLook;

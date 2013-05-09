@@ -16,6 +16,7 @@ private:
 	World* w;
 	int hitTree;
 	GLfloat turbo;
+	GLfloat gravity;
 
 public:
 	Player(void);

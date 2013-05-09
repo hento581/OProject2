@@ -56,6 +56,8 @@ GLfloat jumpSpeed = 1.0/5.0;
 GLfloat jumpTime = 0.0;
 GLfloat maxJumpTime = 15.0;
 
+GLfloat hitBoxTree = 0.4;
+
 //För musen...
 Point3D p = vec3(0, 5, 8);
 Point3D l = vec3(2, 0, 2);
@@ -268,6 +270,9 @@ void keyboardFunction (unsigned char key, int xmouse, int ymouse)
 		case 'p':
 			exit(0);
 		break;
+		case 'P':
+			exit(0);
+		break;
 		case ' ':
 			showMap = true;
 		break;
@@ -286,8 +291,7 @@ void keyboardFunction (unsigned char key, int xmouse, int ymouse)
 
 		case 'y':
 			
-			player->setOldSpeed(vec3(0,0,0));
-			player->playerHitTree();
+		
 		break;
 		default:
 		 break;
@@ -499,22 +503,27 @@ bool nearTree()
 {
 
 		Point3D currentPos = player->getPos();
-		currentPos.y = 0;
+		currentPos.y = 0.0;
 		Point3D treePos = currentPos;
 		
 
-		for(int i=0; i < 2; i++){
-			for(int j=0; j < 2; j++){
+		for(int i=-2; i < 3; i++){
+			for(int j=-2; j < 3; j++){
 
 				treePos.x = floor(currentPos.x)+i;
 				treePos.z = floor(currentPos.z)+j;
-				Point3D actualTreePos = vec3(treePos.x,0,treePos.z);
-				actualTreePos.x += randXZ->xz[(int)treePos.x][(int) treePos.z].x;
-				actualTreePos.z += randXZ->xz[(int)treePos.x][(int) treePos.z].z;
+				if(treePos.x >= 0.0 && treePos.z >= 0.0){
+					Point3D actualTreePos = vec3(treePos.x,0.0,treePos.z);
+					actualTreePos.x += randXZ->xz[(int)treePos.x][(int) treePos.z].x;
+					actualTreePos.z += randXZ->xz[(int)treePos.x][(int) treePos.z].z;
 
-				Point3D vecFromTree = VectorSub(currentPos, actualTreePos);
-				int distFromTree = Norm(vecFromTree);
-				if(distFromTree < 0.2) return true;
+					Point3D vecFromTree = VectorSub(currentPos, actualTreePos);
+					GLfloat distFromTree = Norm(vecFromTree);
+					if(distFromTree < hitBoxTree){
+						printf("hitTree");
+						return true;
+					}
+				}
 			}
 		}
 
