@@ -107,7 +107,7 @@ bool posIsTree[254][254];
 unsigned int vertexArrayObjID;
 
 // vertex array object
-Model *m, *m2, *tm, *bill, *tree, *sky, *map, *control;
+Model *m, *m2, *tm, *bill, *tree, *sky, *map, *control, *compass;
 
 // Reference to shader program
 
@@ -209,6 +209,37 @@ Model* mapModel(void)
 							 0.4f,0.4f,0.0f,
 							-0.4f,-0.4f,0.0f,
 							 0.4f,-0.4f,0.0f};
+	GLfloat normalArray[] = { 0.0f,0.0f,1.0f,
+							 0.0f,0.0f,1.0f,
+							 0.0f,0.0f,1.0f,
+							 0.0f,0.0f,1.0f,};
+	GLfloat texCoordArray[] = { 1.0f,0.0f,
+								0.0f,0.0f,
+								1.0f,1.0f,
+								0.0f,1.0f};
+
+	GLuint indexArray[] = { 0,1,2,1,2,3};
+
+	Model* m = LoadDataToModel(
+			vertexArray,
+			normalArray,
+			texCoordArray,
+			NULL,
+			indexArray,
+			vertexCount,
+			triangleCount*3);
+	return m;
+}
+
+Model* compassModel(void)
+{
+	int vertexCount = 4;
+	int triangleCount = 2;
+	
+	GLfloat vertexArray[] = { -0.02f,0.1f,0.0f,
+							 0.02f,0.1f,0.0f,
+							-0.02f,-0.1f,0.0f,
+							 0.02f,-0.1f,0.0f};
 	GLfloat normalArray[] = { 0.0f,0.0f,1.0f,
 							 0.0f,0.0f,1.0f,
 							 0.0f,0.0f,1.0f,
@@ -460,7 +491,7 @@ void DrawBillboard(Model* bm, int inx, int inz, mat4 view)
 
 }
 
-void DrawMap(Model* map, mat4 view)
+void DrawMap(Model* map, Model* compass, mat4 view)
 {
 		vec3 mapNorm = vec3(0,0,1);
 		vec3 camPos = VectorAdd(player->getPos(),vec3(0,2.0,0));
@@ -492,14 +523,25 @@ void DrawMap(Model* map, mat4 view)
 		view = Mult(view,billRotMat);
 		
 		//Rotate map 
+		mat4 viewCompass = view;
 		view = Mult(view,ArbRotate(vec3(0,0,1), mapAngle));
-		
+		//view = Mult(view,S(1,8/6,1)); 
 
-
+		view = Mult(view,T(0,0,-0.1));
 		glUniformMatrix4fv(glGetUniformLocation(billBoardProgram, "camMatrix"), 1, GL_TRUE, player->getCamMatrix().m);
 		glUniformMatrix4fv(glGetUniformLocation(billBoardProgram, "mdlMatrix"), 1, GL_TRUE, view.m);
-
 		DrawModel(map, billBoardProgram, "inPosition",  NULL, "inTexCoord"); 
+		
+		//Kompass, antagligen rätt fel med axlarna...
+		viewCompass = Mult(viewCompass,T(-0.4,-0.3,0.1));
+		GLfloat compassAngle = acos(DotProduct(vec3(1,0,0),mapToCamXZ));
+		if (mapToCam.z < 0)
+			viewCompass = Mult(viewCompass,ArbRotate(vec3(0,0,-1), compassAngle));
+		else
+			viewCompass = Mult(viewCompass,ArbRotate(vec3(0,0,1), compassAngle));
+
+		glUniformMatrix4fv(glGetUniformLocation(billBoardProgram, "mdlMatrix"), 1, GL_TRUE, viewCompass.m);
+		DrawModel(compass, billBoardProgram, "inPosition",  NULL, "inTexCoord");
 
 }
 
@@ -610,6 +652,7 @@ void init(void)
 	glUniformMatrix4fv(glGetUniformLocation(billBoardProgram, "projMatrix"), 1, GL_TRUE, projectionMatrix.m);
 	bill = billboardModel();
 	map = mapModel();
+	compass = compassModel();
 	control = controlModel();
 
 	LoadTGATextureSimple("tree.tga", &treeTex);
@@ -747,7 +790,7 @@ void display(void)
 
 	if(showMap)
 	{
-			DrawMap(map,modelView); 
+			DrawMap(map,compass,modelView); 
 	}
 	
 	
