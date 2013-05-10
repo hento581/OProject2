@@ -111,7 +111,7 @@ Model *m, *m2, *tm, *bill, *tree, *sky, *map, *control;
 
 // Reference to shader program
 
-GLuint tex1, tex2,tex3,tex4, treeTex, skyTex, mapTex;
+GLuint tex1, tex2,tex3,tex4, treeTex, skyTex, mapTex, controlTex;
 TextureData ttex; // terrain
 
 // Map texture
@@ -153,34 +153,38 @@ Model* billboardModel(void)
 
 Model* controlModel(void)
 {
-	int vertexCount = 6;
+	int vertexCount = 8;
 	int triangleCount = 6;
 	
-	GLfloat vertexArray[] = {0.0f,-0.1f,0.0866f,
-							 0.1f,-0.1f,-0.0866f,
-							-0.1f,-0.1f,-0.0866f,
-							0.0f,0.1f,0.0866f,
-							 0.1f,0.1f,-0.0866f,
-							 -0.1f,0.1f,-0.0866f};
-	GLfloat normalArray[] = {0.0f,0.0f,0.0866f,
-							 0.1f,0.0f,-0.0866f,
-							-0.1f,0.0f,-0.0866f,
-							0.0f,0.0f,0.0866f,
-							 0.1f,0.0f,-0.0866f,
-							 -0.1f,0.0f,-0.0866f};
+	GLfloat vertexArray[] = {0.0f,0.0f,0.13f,
+							 0.15f,0.0f,-0.13f,
+							-0.15f,0.0f,-0.13f,
+							0.0f,0.3f,0.13f,
+							 0.15f,0.3f,-0.13f,
+							 -0.15f,0.3f,-0.13f,
+							0.0f,0.0f,0.13f,
+							0.0f,0.3f,0.13f,};
+	GLfloat normalArray[] = {0.0f,0.0f,0.13f,
+							 0.1f,0.0f,-0.13f,
+							-0.1f,0.0f,-0.13f,
+							0.0f,0.0f,0.13f,
+							 0.1f,0.0f,-0.13f,
+							 -0.1f,0.0f,-0.13f};
 	GLfloat texCoordArray[] = { 0.0f,0.0f,
-								0.0f,0.3333f,
-								0.0f,0.6667f,
+								0.6667f,0.0f,
+								0.3333f,0.0f,
+								0.0f,1.0f,
+								0.6667f,1.0f,
+								0.3333f,1.0f,
 								1.0f,0.0f,
-								1.0f,0.3333f,
-								1.0f,0.6667f};
+								1.0f,1.0f};
 
 	GLuint indexArray[] = { 0,3,2,
 							3,5,2,
 							2,5,1,
 							5,4,1,
-							1,4,0,
-							4,3,0};
+							1,4,6,
+							4,7,6};
 
 	Model* m = LoadDataToModel(
 			vertexArray,
@@ -606,8 +610,10 @@ void init(void)
 	glUniformMatrix4fv(glGetUniformLocation(billBoardProgram, "projMatrix"), 1, GL_TRUE, projectionMatrix.m);
 	bill = billboardModel();
 	map = mapModel();
+	control = controlModel();
 
 	LoadTGATextureSimple("tree.tga", &treeTex);
+	LoadTGATextureSimple("control.tga", &controlTex);
 	mapTex = LoadBMPTexture("curves.bmp", 512, 512);
 
 	glUseProgram(skyProgram);
@@ -726,8 +732,18 @@ void display(void)
 	glDisable(GL_TEXTURE_2D);*/
 
 	glActiveTexture(GL_TEXTURE5);
-	glBindTexture(GL_TEXTURE_2D, mapTex);
+	glBindTexture(GL_TEXTURE_2D, controlTex);
 	glUniform1i(glGetUniformLocation(billBoardProgram, "tex1"), 5);
+
+	mat4 controlView = T(1, world->findHeight(1, 1)+ 0.7, 1);
+	glUniformMatrix4fv(glGetUniformLocation(billBoardProgram, "camMatrix"), 1, GL_TRUE, player->getCamMatrix().m);
+	glUniformMatrix4fv(glGetUniformLocation(billBoardProgram, "mdlMatrix"), 1, GL_TRUE, controlView.m);
+	DrawModel(control, billBoardProgram, "inPosition",  NULL, "inTexCoord"); //TODO: put NULL instead of "inNormal" here to make it work..
+	
+	glActiveTexture(GL_TEXTURE6);
+	glBindTexture(GL_TEXTURE_2D, mapTex);
+	glUniform1i(glGetUniformLocation(billBoardProgram, "tex1"), 6);
+
 
 	if(showMap)
 	{
