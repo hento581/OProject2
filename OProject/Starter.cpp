@@ -59,7 +59,7 @@ GLfloat maxJumpTime = 15.0;
 GLfloat hitBoxTree = 0.4;
 
 //För musen...
-Point3D p = vec3(0, 5, 8);
+Point3D p = vec3(45, 5, 45);
 Point3D l = vec3(2, 0, 2);
 Point3D test;
 Point3D temp;
@@ -630,7 +630,7 @@ void init(void)
 	
 // Load terrain data
 	
-	LoadTGATexture("fft-terrain.tga", &ttex);
+	LoadTGATexture("ownterrain.tga", &ttex);
 	world = new World(&ttex);
 	player = new Player(p,l,world);
 	tm = world->GenerateTerrain();
