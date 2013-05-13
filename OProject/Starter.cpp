@@ -59,7 +59,7 @@ GLfloat maxJumpTime = 15.0;
 GLfloat hitBoxTree = 0.4;
 
 //För musen...
-Point3D p = vec3(45, 5, 45);
+Point3D p = vec3(451/4, 5, 172/4);
 Point3D l = vec3(2, 0, 2);
 Point3D test;
 Point3D temp;
@@ -813,10 +813,13 @@ void display(void)
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, mapWidth, mapHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 	glDisable(GL_TEXTURE_2D);*/
 
-	drawControl(40,40);
-	drawControl(50,50);
-	drawControl(60,60);
+	drawControl(110,72);
+	drawControl(50,151);
+	drawControl(106,233);
+	drawControl(179,103);
+	drawControl(226,111);
 	
+
 	
 	glActiveTexture(GL_TEXTURE6);
 	glBindTexture(GL_TEXTURE_2D, mapTex);

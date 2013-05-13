@@ -9,12 +9,18 @@ World::World(void)
 World::World(TextureData* texture){
 
 	this->tex=texture;
-	controls[1][1] = 40;
-	controls[1][2] = 40;
+	controls[1][1] = 110;
+	controls[1][2] = 72;
 	controls[2][1] = 50;
-	controls[2][2] = 50;
-	controls[3][1] = 60;
-	controls[3][2] = 60;
+	controls[2][2] = 151;
+	controls[3][1] = 106;
+	controls[3][2] = 233;
+	controls[4][1] = 179;
+	controls[4][2] = 103;
+	controls[5][1] = 226;
+	controls[5][2] = 111;
+	
+
 
 }
 

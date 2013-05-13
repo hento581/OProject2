@@ -15,7 +15,7 @@ Player::Player(Point3D p, Point3D l, World* world)
 	this->hitTree = 0;
 	this->turbo = 0.0;
 	this->gravity = 1.0;
-	this->nextControl = vec3(40,0,40);
+	this->nextControl = vec3(110,0,72);
 	this->punshedControls=0;
 }
 
