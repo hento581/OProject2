@@ -35,6 +35,9 @@ bool tIsDown = false;
 
 bool showMap = false;
 
+bool controlIsFound = false;
+int controlPunshedFor = 0;
+
 
 
 GLfloat jump = 0.0;
@@ -107,11 +110,11 @@ bool posIsTree[254][254];
 unsigned int vertexArrayObjID;
 
 // vertex array object
-Model *m, *m2, *tm, *bill, *tree, *sky, *map, *control, *compass;
+Model *m, *m2, *tm, *bill, *tree, *sky, *map, *control, *compass, *punsh;
 
 // Reference to shader program
 
-GLuint tex1, tex2,tex3,tex4, treeTex, skyTex, mapTex, controlTex, compassTex;
+GLuint tex1, tex2,tex3,tex4, treeTex, skyTex, mapTex, controlTex, compassTex, punshTex, goalTex;
 TextureData ttex; // terrain
 
 // Map texture
@@ -248,6 +251,37 @@ Model* compassModel(void)
 								0.0f,0.0f,
 								1.0f,1.0f,
 								0.0f,1.0f};
+
+	GLuint indexArray[] = { 0,1,2,1,2,3};
+
+	Model* m = LoadDataToModel(
+			vertexArray,
+			normalArray,
+			texCoordArray,
+			NULL,
+			indexArray,
+			vertexCount,
+			triangleCount*3);
+	return m;
+}
+
+Model* punshModel(void)
+{
+	int vertexCount = 4;
+	int triangleCount = 2;
+	
+	GLfloat vertexArray[] = { -0.2f,0.2f,0.0f,
+							 0.2f,0.2f,0.0f,
+							-0.2f,-0.2f,0.0f,
+							 0.2f,-0.2f,0.0f};
+	GLfloat normalArray[] = { 0.0f,0.0f,1.0f,
+							 0.0f,0.0f,1.0f,
+							 0.0f,0.0f,1.0f,
+							 0.0f,0.0f,1.0f,};
+	GLfloat texCoordArray[] = { 0.0f,0.0f,
+								1.0f,0.0f,
+								0.0f,1.0f,
+								1.0f,1.0f};
 
 	GLuint indexArray[] = { 0,1,2,1,2,3};
 
@@ -561,6 +595,50 @@ void DrawMap(Model* map, Model* compass, mat4 view)
 
 }
 
+void punshControl(Model* map, mat4 view)
+{
+		
+		vec3 mapNorm = vec3(0,0,1);
+		vec3 camPos = VectorAdd(player->getPos(),vec3(0,2.0,0));
+		vec3 mapToCam = VectorSub(player->getPos(),player->getLook());
+		//Put map in front of the cam
+		vec3 mapPos = VectorSub(camPos,mapToCam);
+		mat4 translate=  T(mapPos.x,mapPos.y,mapPos.z);
+		view = Mult(view, translate);
+
+		//Rotate in around Y-axis
+		vec3 mapToCamXZ = mapToCam;
+		mapToCamXZ.y = 0;
+		mapToCamXZ = Normalize(mapToCamXZ);
+		vec3 upVec = CrossProduct(mapNorm, mapToCamXZ);
+		GLfloat angle = acos(DotProduct(mapNorm, mapToCamXZ));
+		mat4 billRotMat = ArbRotate(upVec, angle);
+
+			view = Mult(view,billRotMat);
+
+		//Rotate in around XZ-axis
+		mapToCam = Normalize(mapToCam);
+		angle = acos(DotProduct(mapToCamXZ,mapToCam));
+		
+			if (mapToCam.y < 0)
+				billRotMat = ArbRotate(vec3(1,0,0), angle);	
+			else
+				billRotMat = ArbRotate(vec3(-1,0,0), angle);
+
+		view = Mult(view,billRotMat);
+		
+		//Rotate map 
+		mat4 viewCompass = view;
+	//	view = Mult(view,ArbRotate(vec3(0,0,1), mapAngle));
+		//view = Mult(view,S(1,8/6,1)); 
+
+		view = Mult(view,T(0,0,-0.1));
+		glUniformMatrix4fv(glGetUniformLocation(billBoardProgram, "camMatrix"), 1, GL_TRUE, player->getCamMatrix().m);
+		glUniformMatrix4fv(glGetUniformLocation(billBoardProgram, "mdlMatrix"), 1, GL_TRUE, view.m);
+		DrawModel(map, billBoardProgram, "inPosition",  NULL, "inTexCoord"); 
+
+}
+
 bool nearTree()
 {
 
@@ -607,6 +685,8 @@ void drawControl(int x, int z)
 
 
 }
+
+
 
 void init(void)
 {
@@ -682,6 +762,7 @@ void init(void)
 	glUniformMatrix4fv(glGetUniformLocation(billBoardProgram, "projMatrix"), 1, GL_TRUE, projectionMatrix.m);
 	bill = billboardModel();
 	map = mapModel();
+	punsh = punshModel();
 	compass = compassModel();
 	control = controlModel();
 
@@ -690,6 +771,8 @@ void init(void)
 	LoadTGATextureSimple("compass.tga", &compassTex);
 	//mapTex = LoadBMPTexture("map.bmp", 1024, 1024); 
 	LoadTGATextureSimple("mapcourse.tga", &mapTex);
+	LoadTGATextureSimple("punsh.tga", &punshTex);
+	LoadTGATextureSimple("goal.tga", &goalTex);
 	
 	glUseProgram(skyProgram);
 	glUniformMatrix4fv(glGetUniformLocation(skyProgram, "projMatrix"), 1, GL_TRUE, projectionMatrix.m);
@@ -717,11 +800,11 @@ void display(void)
 	}
 	if(qIsDown) 
 	{
-		mapAngle+=0.02;	
+		mapAngle-=0.02;	
 	}
 	if(eIsDown)
 	{
-			mapAngle-=0.02;
+			mapAngle+=0.02;
 	}
 	if(jumping)
 	{
@@ -730,11 +813,14 @@ void display(void)
 	player->heightUpdate();
 	if(player->isNextControl())
 	{
-		printf("yeeeeey");
-		player->setNextControl(world->getControlPos(player->getPunshedControls()));
 		
+		//punshControl(map);
+		controlIsFound = true;
+			
+		player->setNextControl(world->getControlPos(player->getPunshedControls()));		
 
 	}
+	
 
 	// clear the screen
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -809,9 +895,7 @@ void display(void)
 		}
 	}
 
-	/*glEnable(GL_TEXTURE_2D);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, mapWidth, mapHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-	glDisable(GL_TEXTURE_2D);*/
+	
 
 	drawControl(110,72);
 	drawControl(50,151);
@@ -830,8 +914,30 @@ void display(void)
 	{
 			DrawMap(map,compass,modelView); 
 	}
+
+	if(player->getPunshedControls() <=4){
+		glActiveTexture(GL_TEXTURE7);
+		glBindTexture(GL_TEXTURE_2D, punshTex);
+		glUniform1i(glGetUniformLocation(billBoardProgram, "tex1"), 7);
 	
-	
+		if(controlIsFound)
+		{
+				punshControl(punsh, modelView);
+				controlPunshedFor++;
+		}
+		if(controlPunshedFor>100){
+			controlIsFound = false;
+			controlPunshedFor = 0;
+		}
+	}
+	else
+	{
+		glActiveTexture(GL_TEXTURE7);
+		glBindTexture(GL_TEXTURE_2D, goalTex);
+		glUniform1i(glGetUniformLocation(billBoardProgram, "tex1"), 7);
+		punshControl(punsh, modelView);
+
+	}
 	glDisable(GL_ALPHA_TEST);
 
 
@@ -843,6 +949,7 @@ void display(void)
 void timer(int i)
 {
 	glutTimerFunc(20, &timer, i);
+	
 	
 	glutPostRedisplay();
 }
