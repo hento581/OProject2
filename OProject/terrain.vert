@@ -6,6 +6,7 @@ in vec2 inTexCoord;
 out vec2 texCoord;
 out vec3 transformedNormal;
 out vec3 outPosition;
+out vec3 exSurface;
 
 
 // NY
@@ -20,4 +21,5 @@ void main(void)
 	transformedNormal = normalMatrix1 * inNormal;
 	texCoord = inTexCoord;
 	gl_Position = projMatrix *camMatrix* mdlMatrix * vec4(inPosition, 1.0);
+	exSurface =  vec3(camMatrix* mdlMatrix * vec4(inPosition, 1.0));
 }
