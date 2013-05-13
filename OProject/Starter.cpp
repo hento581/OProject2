@@ -111,7 +111,7 @@ Model *m, *m2, *tm, *bill, *tree, *sky, *map, *control, *compass;
 
 // Reference to shader program
 
-GLuint tex1, tex2,tex3,tex4, treeTex, skyTex, mapTex, controlTex;
+GLuint tex1, tex2,tex3,tex4, treeTex, skyTex, mapTex, controlTex, compassTex;
 TextureData ttex; // terrain
 
 // Map texture
@@ -213,10 +213,10 @@ Model* mapModel(void)
 							 0.0f,0.0f,1.0f,
 							 0.0f,0.0f,1.0f,
 							 0.0f,0.0f,1.0f,};
-	GLfloat texCoordArray[] = { 1.0f,0.0f,
-								0.0f,0.0f,
-								1.0f,1.0f,
-								0.0f,1.0f};
+	GLfloat texCoordArray[] = { 0.0f,0.0f,
+								1.0f,0.0f,
+								0.0f,1.0f,
+								1.0f,1.0f};
 
 	GLuint indexArray[] = { 0,1,2,1,2,3};
 
@@ -533,12 +533,16 @@ void DrawMap(Model* map, Model* compass, mat4 view)
 		DrawModel(map, billBoardProgram, "inPosition",  NULL, "inTexCoord"); 
 		
 		//Kompass, antagligen rätt fel med axlarna...
-		viewCompass = Mult(viewCompass,T(-0.4,-0.3,0.1));
-		GLfloat compassAngle = acos(DotProduct(vec3(1,0,0),mapToCamXZ));
-		if (mapToCam.z < 0)
-			viewCompass = Mult(viewCompass,ArbRotate(vec3(0,0,-1), compassAngle));
-		else
+		viewCompass = Mult(viewCompass,T(-0.35,-0.3,0.1));
+		GLfloat compassAngle = acos(DotProduct(vec3(0,0,1),mapToCamXZ));
+		if (mapToCam.x < 0)
 			viewCompass = Mult(viewCompass,ArbRotate(vec3(0,0,1), compassAngle));
+		else
+			viewCompass = Mult(viewCompass,ArbRotate(vec3(0,0,-1), compassAngle));
+		
+		glActiveTexture(GL_TEXTURE5);
+		glBindTexture(GL_TEXTURE_2D, compassTex);
+		glUniform1i(glGetUniformLocation(billBoardProgram, "tex1"), 5);
 
 		glUniformMatrix4fv(glGetUniformLocation(billBoardProgram, "mdlMatrix"), 1, GL_TRUE, viewCompass.m);
 		DrawModel(compass, billBoardProgram, "inPosition",  NULL, "inTexCoord");
@@ -657,8 +661,10 @@ void init(void)
 
 	LoadTGATextureSimple("tree.tga", &treeTex);
 	LoadTGATextureSimple("control.tga", &controlTex);
-	mapTex = LoadBMPTexture("curves.bmp", 512, 512);
-
+	LoadTGATextureSimple("compass.tga", &compassTex);
+	//mapTex = LoadBMPTexture("map.bmp", 1024, 1024); 
+	LoadTGATextureSimple("map.tga", &mapTex);
+	
 	glUseProgram(skyProgram);
 	glUniformMatrix4fv(glGetUniformLocation(skyProgram, "projMatrix"), 1, GL_TRUE, projectionMatrix.m);
 	sky = LoadModelPlus("skybox.obj");
