@@ -203,3 +203,9 @@ GLfloat World::findHeight(GLfloat x, GLfloat z)
 	return this->interpolate(P,A,B,C);
 
 }
+
+Point3D World::getControlPos(int controlNumber)
+{
+	Point3D controlPos = vec3(45,0,45);
+	return controlPos;
+}

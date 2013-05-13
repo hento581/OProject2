@@ -11,14 +11,36 @@ Player::Player(Point3D p, Point3D l, World* world)
 	this->pos = p;
 	this->look = l;
 	this->w = world;
-	oldSpeed= vec3(0,0,0);
+	this->oldSpeed= vec3(0,0,0);
 	this->hitTree = 0;
 	this->turbo = 0.0;
 	this->gravity = 1.0;
+	this->nextControl = vec3(40,0,40);
+	this->punshedControls=0;
 }
 
 Player::~Player(void)
 {
+}
+
+bool Player::isNextControl()
+{
+	Point3D tempPos = pos;
+	tempPos.y = 0;
+	if(Norm(tempPos-nextControl)<0.5) return true;
+	
+	return false;
+}
+
+void Player::setNextControl(vec3 newNextControl)
+{
+	nextControl = newNextControl;
+	punshedControls++;
+}
+
+int Player::getPunshedControls()
+{
+	return punshedControls;
 }
 
 void Player::heightUpdate(void)

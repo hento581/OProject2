@@ -323,6 +323,18 @@ void keyboardFunction (unsigned char key, int xmouse, int ymouse)
 		case 'T':
 			player->setTurbo(0.2);
 		break;
+		case 'm':
+			printf("%f", player->getPos().x);
+			printf(" ");
+			printf("%f", player->getPos().z);
+			printf(", ");
+		break;
+		case 'M':
+			printf("%f", player->getPos().x);
+			printf(" ");
+			printf("%f", player->getPos().z);
+			printf(", ");
+		break;
 
 		case 'y':
 			
@@ -662,7 +674,7 @@ void init(void)
 	glUseProgram(skyProgram);
 	glUniformMatrix4fv(glGetUniformLocation(skyProgram, "projMatrix"), 1, GL_TRUE, projectionMatrix.m);
 	sky = LoadModelPlus("skybox.obj");
-	LoadTGATextureSimple("SkyBox5122.tga", &skyTex);
+	LoadTGATextureSimple("SkyBox512.tga", &skyTex);
 
 	printError("init terrain");
 
@@ -695,7 +707,14 @@ void display(void)
 	{
 			player->jump();
 	}
-	player->heightUpdate();	
+	player->heightUpdate();
+	if(player->isNextControl())
+	{
+		printf("yeeeeey");
+		player->setNextControl(world->getControlPos(player->getPunshedControls()));
+		
+
+	}
 
 	// clear the screen
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -778,7 +797,7 @@ void display(void)
 	glBindTexture(GL_TEXTURE_2D, controlTex);
 	glUniform1i(glGetUniformLocation(billBoardProgram, "tex1"), 5);
 
-	mat4 controlView = T(1, world->findHeight(1, 1)+ 0.7, 1);
+	mat4 controlView = T(40, world->findHeight(40, 40)+ 0.7, 40);
 	glUniformMatrix4fv(glGetUniformLocation(billBoardProgram, "camMatrix"), 1, GL_TRUE, player->getCamMatrix().m);
 	glUniformMatrix4fv(glGetUniformLocation(billBoardProgram, "mdlMatrix"), 1, GL_TRUE, controlView.m);
 	DrawModel(control, billBoardProgram, "inPosition",  NULL, "inTexCoord"); //TODO: put NULL instead of "inNormal" here to make it work..

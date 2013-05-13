@@ -23,6 +23,7 @@ public:
 	GLfloat interpolate(Point3D, Point3D, Point3D, Point3D);
 	int insideTriangle(Point3D, Point3D, Point3D, Point3D);
 	GLfloat findHeight(GLfloat, GLfloat); 
+	Point3D getControlPos(int);
 
 };
 
