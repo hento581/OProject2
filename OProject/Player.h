@@ -17,6 +17,8 @@ private:
 	int hitTree;
 	GLfloat turbo;
 	GLfloat gravity;
+	Point3D nextControl;
+	int punshedControls;
 
 public:
 	Player(void);
@@ -26,6 +28,10 @@ public:
 	Point3D getLook(void){return look;}
 	void setLook(Point3D l){look = l;}
 	void setPos(Point3D p){pos = p;}
+	bool isNextControl();
+	void setNextControl(vec3);
+	Point3D getNextControl(void){return nextControl;}
+	int getPunshedControls();
 	void heightUpdate(void);
 	mat4 getCamMatrix(void);
 	void mouseLook(GLfloat,GLfloat);
@@ -37,5 +43,6 @@ public:
 	void setOldSpeed(Point3D);
 	void playerHitTree(void);
 	void setTurbo(GLfloat);
+
 };
 

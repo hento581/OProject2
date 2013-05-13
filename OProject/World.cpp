@@ -9,6 +9,12 @@ World::World(void)
 World::World(TextureData* texture){
 
 	this->tex=texture;
+	controls[1][1] = 40;
+	controls[1][2] = 40;
+	controls[2][1] = 50;
+	controls[2][2] = 50;
+	controls[3][1] = 60;
+	controls[3][2] = 60;
 
 }
 
@@ -202,4 +208,10 @@ GLfloat World::findHeight(GLfloat x, GLfloat z)
 
 	return this->interpolate(P,A,B,C);
 
+}
+
+Point3D World::getControlPos(int controlNumber)
+{
+	Point3D controlPos = vec3(controls[controlNumber+2][1],0,controls[controlNumber+2][2]);
+	return controlPos;
 }

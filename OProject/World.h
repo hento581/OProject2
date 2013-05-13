@@ -12,6 +12,7 @@ class World
 private:
 	TextureData* tex;
 	Model* m;
+	GLfloat controls[3][2];
 public:
 	World(void);
 	World(TextureData*);
@@ -23,6 +24,7 @@ public:
 	GLfloat interpolate(Point3D, Point3D, Point3D, Point3D);
 	int insideTriangle(Point3D, Point3D, Point3D, Point3D);
 	GLfloat findHeight(GLfloat, GLfloat); 
+	Point3D getControlPos(int);
 
 };
 
