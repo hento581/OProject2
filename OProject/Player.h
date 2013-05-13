@@ -30,6 +30,7 @@ public:
 	void setPos(Point3D p){pos = p;}
 	bool isNextControl();
 	void setNextControl(vec3);
+	Point3D getNextControl(void){return nextControl;}
 	int getPunshedControls();
 	void heightUpdate(void);
 	mat4 getCamMatrix(void);

@@ -324,9 +324,9 @@ void keyboardFunction (unsigned char key, int xmouse, int ymouse)
 			player->setTurbo(0.2);
 		break;
 		case 'm':
-			printf("%f", player->getPos().x);
+			printf("%f", player->getNextControl().x);
 			printf(" ");
-			printf("%f", player->getPos().z);
+			printf("%f", player->getNextControl().z);
 			printf(", ");
 		break;
 		case 'M':
@@ -590,6 +590,20 @@ bool nearTree()
 	
 }
 
+void drawControl(int x, int z)
+{
+	glActiveTexture(GL_TEXTURE5);
+	glBindTexture(GL_TEXTURE_2D, controlTex);
+	glUniform1i(glGetUniformLocation(billBoardProgram, "tex1"), 5);
+
+	mat4 controlView = T(x, world->findHeight(x, z)+ 0.7, z);
+	glUniformMatrix4fv(glGetUniformLocation(billBoardProgram, "camMatrix"), 1, GL_TRUE, player->getCamMatrix().m);
+	glUniformMatrix4fv(glGetUniformLocation(billBoardProgram, "mdlMatrix"), 1, GL_TRUE, controlView.m);
+	DrawModel(control, billBoardProgram, "inPosition",  NULL, "inTexCoord"); //TODO: put NULL instead of "inNormal" here to make it work..
+
+
+}
+
 void init(void)
 {
 
@@ -793,14 +807,10 @@ void display(void)
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, mapWidth, mapHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 	glDisable(GL_TEXTURE_2D);*/
 
-	glActiveTexture(GL_TEXTURE5);
-	glBindTexture(GL_TEXTURE_2D, controlTex);
-	glUniform1i(glGetUniformLocation(billBoardProgram, "tex1"), 5);
-
-	mat4 controlView = T(40, world->findHeight(40, 40)+ 0.7, 40);
-	glUniformMatrix4fv(glGetUniformLocation(billBoardProgram, "camMatrix"), 1, GL_TRUE, player->getCamMatrix().m);
-	glUniformMatrix4fv(glGetUniformLocation(billBoardProgram, "mdlMatrix"), 1, GL_TRUE, controlView.m);
-	DrawModel(control, billBoardProgram, "inPosition",  NULL, "inTexCoord"); //TODO: put NULL instead of "inNormal" here to make it work..
+	drawControl(40,40);
+	drawControl(50,50);
+	drawControl(60,60);
+	
 	
 	glActiveTexture(GL_TEXTURE6);
 	glBindTexture(GL_TEXTURE_2D, mapTex);

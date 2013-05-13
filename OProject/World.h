@@ -12,6 +12,7 @@ class World
 private:
 	TextureData* tex;
 	Model* m;
+	GLfloat controls[3][2];
 public:
 	World(void);
 	World(TextureData*);
