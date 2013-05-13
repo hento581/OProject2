@@ -689,7 +689,7 @@ void init(void)
 	LoadTGATextureSimple("control.tga", &controlTex);
 	LoadTGATextureSimple("compass.tga", &compassTex);
 	//mapTex = LoadBMPTexture("map.bmp", 1024, 1024); 
-	LoadTGATextureSimple("map.tga", &mapTex);
+	LoadTGATextureSimple("mapcourse.tga", &mapTex);
 	
 	glUseProgram(skyProgram);
 	glUniformMatrix4fv(glGetUniformLocation(skyProgram, "projMatrix"), 1, GL_TRUE, projectionMatrix.m);
