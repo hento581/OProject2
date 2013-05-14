@@ -629,8 +629,7 @@ void punshControl(Model* map, mat4 view)
 		
 		//Rotate map 
 		mat4 viewCompass = view;
-	//	view = Mult(view,ArbRotate(vec3(0,0,1), mapAngle));
-		//view = Mult(view,S(1,8/6,1)); 
+
 
 		view = Mult(view,T(0,0,-0.1));
 		glUniformMatrix4fv(glGetUniformLocation(billBoardProgram, "camMatrix"), 1, GL_TRUE, player->getCamMatrix().m);
@@ -693,8 +692,8 @@ void init(void)
 
 	GLenum err = glewInit();
 
-	glutReshapeWindow(screenX,screenY);
-	//glutFullScreen();
+	//glutReshapeWindow(screenX,screenY);
+	glutFullScreen();
 	glutSetCursor(GLUT_CURSOR_NONE);
 
 

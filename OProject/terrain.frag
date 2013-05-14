@@ -12,16 +12,16 @@ in vec3 transformedNormal;
 
 void main(void)
 {
-	const vec3 light = vec3(-0.0, 0.4, 1.0);
+	const vec3 light = vec3(1.1, 0.5, 0.0);
 	float shade = dot(normalize(transformedNormal), light);
 	shade = max(0.0,shade)+0.3;
 	vec3 r = reflect(-light, normalize(transformedNormal));
-	vec3 v = normalize(exSurface);
+	vec3 v = normalize(-exSurface);
 	float specular = dot(r, v);
 	if (specular > 0.0)
-		specular = 0.5 * pow(specular, 20.0);
+		specular = 0.2 * pow(specular, 25.0);
 	specular = max(specular, 0.0);
-	if(outPosition.y<=0.1) //bara specular på vatten
+	if(outPosition.y<=0.01 && transformedNormal.y >= 0.99) //bara specular på vatten
 		shade = shade + specular;
 
 	if(outPosition.y<=0.3 ){

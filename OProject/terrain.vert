@@ -21,5 +21,5 @@ void main(void)
 	transformedNormal = normalMatrix1 * inNormal;
 	texCoord = inTexCoord;
 	gl_Position = projMatrix *camMatrix* mdlMatrix * vec4(inPosition, 1.0);
-	exSurface =  vec3(camMatrix* mdlMatrix * vec4(inPosition, 1.0));
+	exSurface =  vec3(mdlMatrix * vec4(inPosition, 1.0));
 }
