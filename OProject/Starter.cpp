@@ -10,16 +10,12 @@
 #include "World.h"
 #include <time.h>
 
-
-
-#define near 0.2
+ #define near 0.2
  #define far 100.0
  #define right 0.1
  #define left -0.1
  #define top 0.1
- #define bottom -0.1
-
- 
+ #define bottom -0.1 
 
 mat4 projectionMatrix, mapRotation;
 
@@ -35,46 +31,40 @@ bool tIsDown = false;
 
 bool showMap = false;
 
+
+
+//För kontrolltagning
 bool controlIsFound = false;
 int controlPunshedFor = 0;
 
-
-
+//Some globals
 GLfloat jump = 0.0;
-
 int treeRenderingDistance = 50;
-
+GLfloat hitBoxTree = 0.4;
 GLfloat mapAngle=0.0;
+bool jumping = false;
+
+
 
 //För gravitation
-GLfloat lastHeight = -999.0;
+/*GLfloat lastHeight = -999.0;
 GLfloat gravSpeed = 0.3;
 GLfloat gravitation = 0.0982/100.0;
 GLfloat inAirTime = 0.0;
-bool inAir = false;
+bool inAir = false;*/
 
-//För jump
-bool jumping = false;
+/*//För jump
+
 GLfloat jumpSpeed = 1.0/5.0;
 GLfloat jumpTime = 0.0;
-GLfloat maxJumpTime = 15.0;
+GLfloat maxJumpTime = 15.0;*/
 
-GLfloat hitBoxTree = 0.4;
-
-//För musen...
-Point3D p = vec3(451/4, 5, 172/4);
-Point3D l = vec3(2, 0, 2);
-Point3D test;
-Point3D temp;
-Point3D temp2;
-Point3D temp3;
-Point3D camUp = vec3(0,1,0);
+//För skärmen
 GLfloat screenX = 800.0;
 GLfloat screenY = 600.0;
-GLfloat oldx = 0;
-GLfloat oldy = 0;
-GLfloat gx = 10;
-GLfloat gz = 10;
+
+Point3D p = vec3(451/4, 5, 172/4);
+Point3D l = vec3(2, 0, 2);
 
 //Skapa spelare
 Player* player = new Player;
@@ -83,10 +73,6 @@ Player* player = new Player;
 World* world = new World;
 
 GLuint program, billBoardProgram, skyProgram;
-
-GLfloat vertices[] = { -0.5f,-0.5f,0.0f,
-						-0.5f,0.5f,0.0f,
-						0.5f,-0.5f,0.0f };
 
 struct XandZ
 {
@@ -106,21 +92,17 @@ RandXZ* randXZ = new RandXZ;
 
 bool posIsTree[254][254];
 
-// vertex array object
-unsigned int vertexArrayObjID;
-
-// vertex array object
+//Models
 Model *m, *m2, *tm, *bill, *tree, *sky, *map, *control, *compass, *punsh;
 
-// Reference to shader program
-
+// Textures
 GLuint tex1, tex2,tex3,tex4, treeTex, skyTex, mapTex, controlTex, compassTex, punshTex, goalTex;
 TextureData ttex; // terrain
 
-// Map texture
-int mapWidth, mapHeight, mapN;
 
-
+/*
+Model for trees
+*/
 
 Model* billboardModel(void)
 {
@@ -153,6 +135,10 @@ Model* billboardModel(void)
 
 	return m;
 }
+
+/*
+Model for controls
+*/
 
 Model* controlModel(void)
 {
@@ -201,7 +187,9 @@ Model* controlModel(void)
 	return m;
 }
 
-
+/*
+Model for map
+*/
 
 Model* mapModel(void)
 {
@@ -234,6 +222,10 @@ Model* mapModel(void)
 	return m;
 }
 
+/*
+Model for compass
+*/
+
 Model* compassModel(void)
 {
 	int vertexCount = 4;
@@ -264,6 +256,10 @@ Model* compassModel(void)
 			triangleCount*3);
 	return m;
 }
+
+/*
+Model for text
+*/
 
 Model* punshModel(void)
 {
@@ -444,8 +440,6 @@ void keyboardUpFunction (unsigned char key, int xmouse, int ymouse)
 void keyboardSpecFunction (int key, int xmouse, int ymouse)
 {	
 	switch (key){
-		
-
 		default:
 		 break;
 	}
@@ -454,8 +448,7 @@ void keyboardSpecFunction (int key, int xmouse, int ymouse)
 
 void keyboardSpecUpFunction (int key, int xmouse, int ymouse)
 {	
-	switch (key){
-		
+	switch (key){	
 		default:
 		 break;
 	}
@@ -475,19 +468,22 @@ void mouse(int x, int y)
 	
 }
 
-void TreeRandomNumberGen (GLfloat* randX, GLfloat* randZ, GLfloat x, GLfloat z){
+/*
+Generates some "pseudo-random" numbers for the x and y coordinates of trees
+*/
 
-
-
+void TreeRandomNumberGen (GLfloat* randX, GLfloat* randZ, GLfloat x, GLfloat z)
+{
 	*randX=asin(sin(((x*z + sqrt(x) - x*x*x + z*z*z*z +x*z+z*z)/z)*cos(x)*sin(x)))+1;
-	*randZ=asin(sin((z*z+x*z- x*z*x*x/sqrt(z*x) +z*z/x)*cos(z)*cos(z)))+1;
-
-	
+	*randZ=asin(sin((z*z+x*z- x*z*x*x/sqrt(z*x) +z*z/x)*cos(z)*cos(z)))+1;	
 }
+
+/*
+Draws a tree
+*/
 
 void DrawBillboard(Model* bm, int inx, int inz, mat4 view)
 {
-
 	GLfloat x = (GLfloat) inx;
 	GLfloat z = (GLfloat) inz;
 
@@ -496,7 +492,6 @@ void DrawBillboard(Model* bm, int inx, int inz, mat4 view)
 		GLfloat randX;
 		GLfloat randZ;
 		TreeRandomNumberGen(&randX, &randZ, inx, inz);
-
 		randXZ->xz[inx][(int)z].x = randX;
 		randXZ->xz[inx][(int)z].z = randZ;
 	}
@@ -511,37 +506,33 @@ void DrawBillboard(Model* bm, int inx, int inz, mat4 view)
 	playerLookAt.y = 0;
 	if(Norm(billVec) < treeRenderingDistance && DotProduct(playerLookAt,billVec) > 0)
 	{
-		//billVec = playerLookAt;
-		
-		billVec = Normalize(billVec);
-		
+		billVec = Normalize(billVec);		
 		playerLookAt.y = 0.0;
+		mat4 translate=  T(x, world->findHeight(x, z), z);
+		view = Mult(view, translate);
+		vec3 billNorm = vec3(0,0,1);
+		vec3 upVec = CrossProduct(billNorm, billVec);
+		GLfloat cosAngle = DotProduct(billNorm, billVec);		
+		GLfloat angle = acos(cosAngle);		
+		mat4 billRotMat = ArbRotate(upVec, angle);
 
-			mat4 translate=  T(x, world->findHeight(x, z), z);
-			view = Mult(view, translate);
-			vec3 billNorm = vec3(0,0,1);
-
-			vec3 upVec = CrossProduct(billNorm, billVec);
-			GLfloat cosAngle = DotProduct(billNorm, billVec);
-		
-			GLfloat angle = acos(cosAngle);
-		
-			mat4 billRotMat = ArbRotate(upVec, angle);
-
-			view = Mult(view,billRotMat);
-	
-			glUniformMatrix4fv(glGetUniformLocation(billBoardProgram, "camMatrix"), 1, GL_TRUE, player->getCamMatrix().m);
-			glUniformMatrix4fv(glGetUniformLocation(billBoardProgram, "mdlMatrix"), 1, GL_TRUE, view.m);
-			DrawModel(bm, billBoardProgram, "inPosition",  NULL, "inTexCoord"); //TODO: put NULL instead of "inNormal" here to make it work..
+		view = Mult(view,billRotMat);	
+		glUniformMatrix4fv(glGetUniformLocation(billBoardProgram, "camMatrix"), 1, GL_TRUE, player->getCamMatrix().m);
+		glUniformMatrix4fv(glGetUniformLocation(billBoardProgram, "mdlMatrix"), 1, GL_TRUE, view.m);
+		DrawModel(bm, billBoardProgram, "inPosition",  NULL, "inTexCoord"); 
 	}
-
 }
+
+/*
+Draws the map´and the compass
+*/
 
 void DrawMap(Model* map, Model* compass, mat4 view)
 {
 		vec3 mapNorm = vec3(0,0,1);
 		vec3 camPos = VectorAdd(player->getPos(),vec3(0,2.0,0));
 		vec3 mapToCam = VectorSub(player->getPos(),player->getLook());
+
 		//Put map in front of the cam
 		vec3 mapPos = VectorSub(camPos,mapToCam);
 		mat4 translate=  T(mapPos.x,mapPos.y,mapPos.z);
@@ -554,31 +545,29 @@ void DrawMap(Model* map, Model* compass, mat4 view)
 		vec3 upVec = CrossProduct(mapNorm, mapToCamXZ);
 		GLfloat angle = acos(DotProduct(mapNorm, mapToCamXZ));
 		mat4 billRotMat = ArbRotate(upVec, angle);
-
-			view = Mult(view,billRotMat);
+		view = Mult(view,billRotMat);
 
 		//Rotate in around XZ-axis
 		mapToCam = Normalize(mapToCam);
 		angle = acos(DotProduct(mapToCamXZ,mapToCam));
 		
-			if (mapToCam.y < 0)
-				billRotMat = ArbRotate(vec3(1,0,0), angle);	
-			else
-				billRotMat = ArbRotate(vec3(-1,0,0), angle);
+		if (mapToCam.y < 0)
+			billRotMat = ArbRotate(vec3(1,0,0), angle);	
+		else
+			billRotMat = ArbRotate(vec3(-1,0,0), angle);
 
 		view = Mult(view,billRotMat);
 		
 		//Rotate map 
 		mat4 viewCompass = view;
-		view = Mult(view,ArbRotate(vec3(0,0,1), mapAngle));
-		//view = Mult(view,S(1,8/6,1)); 
+		view = Mult(view,ArbRotate(vec3(0,0,1), mapAngle));		
 
 		view = Mult(view,T(0,0,-0.1));
 		glUniformMatrix4fv(glGetUniformLocation(billBoardProgram, "camMatrix"), 1, GL_TRUE, player->getCamMatrix().m);
 		glUniformMatrix4fv(glGetUniformLocation(billBoardProgram, "mdlMatrix"), 1, GL_TRUE, view.m);
 		DrawModel(map, billBoardProgram, "inPosition",  NULL, "inTexCoord"); 
 		
-		//Kompass, antagligen rätt fel med axlarna...
+		//Kompass
 		viewCompass = Mult(viewCompass,T(-0.35,-0.3,0.1));
 		GLfloat compassAngle = acos(DotProduct(vec3(0,0,1),mapToCamXZ));
 		if (mapToCam.x < 0)
@@ -595,13 +584,18 @@ void DrawMap(Model* map, Model* compass, mat4 view)
 
 }
 
+/*
+Draws text when a control is punshed
+*/
+
 void punshControl(Model* map, mat4 view)
 {
 		
 		vec3 mapNorm = vec3(0,0,1);
 		vec3 camPos = VectorAdd(player->getPos(),vec3(0,2.0,0));
 		vec3 mapToCam = VectorSub(player->getPos(),player->getLook());
-		//Put map in front of the cam
+
+		//Put text in front of the cam
 		vec3 mapPos = VectorSub(camPos,mapToCam);
 		mat4 translate=  T(mapPos.x,mapPos.y,mapPos.z);
 		view = Mult(view, translate);
@@ -614,23 +608,20 @@ void punshControl(Model* map, mat4 view)
 		GLfloat angle = acos(DotProduct(mapNorm, mapToCamXZ));
 		mat4 billRotMat = ArbRotate(upVec, angle);
 
-			view = Mult(view,billRotMat);
+		view = Mult(view,billRotMat);
 
 		//Rotate in around XZ-axis
 		mapToCam = Normalize(mapToCam);
 		angle = acos(DotProduct(mapToCamXZ,mapToCam));
 		
-			if (mapToCam.y < 0)
-				billRotMat = ArbRotate(vec3(1,0,0), angle);	
-			else
-				billRotMat = ArbRotate(vec3(-1,0,0), angle);
+		if (mapToCam.y < 0)
+			billRotMat = ArbRotate(vec3(1,0,0), angle);	
+		else
+			billRotMat = ArbRotate(vec3(-1,0,0), angle);
 
-		view = Mult(view,billRotMat);
+		view = Mult(view,billRotMat);		
 		
-		//Rotate map 
 		mat4 viewCompass = view;
-
-
 		view = Mult(view,T(0,0,-0.1));
 		glUniformMatrix4fv(glGetUniformLocation(billBoardProgram, "camMatrix"), 1, GL_TRUE, player->getCamMatrix().m);
 		glUniformMatrix4fv(glGetUniformLocation(billBoardProgram, "mdlMatrix"), 1, GL_TRUE, view.m);
@@ -638,13 +629,28 @@ void punshControl(Model* map, mat4 view)
 
 }
 
+/*
+Draws a control
+*/
+void drawControl(int x, int z)
+{
+	glActiveTexture(GL_TEXTURE5);
+	glBindTexture(GL_TEXTURE_2D, controlTex);
+	glUniform1i(glGetUniformLocation(billBoardProgram, "tex1"), 5);
+	mat4 controlView = T(x, world->findHeight(x, z)+ 0.7, z);
+	glUniformMatrix4fv(glGetUniformLocation(billBoardProgram, "camMatrix"), 1, GL_TRUE, player->getCamMatrix().m);
+	glUniformMatrix4fv(glGetUniformLocation(billBoardProgram, "mdlMatrix"), 1, GL_TRUE, controlView.m);
+	DrawModel(control, billBoardProgram, "inPosition",  NULL, "inTexCoord"); 
+}
+
+/*
+Returns true if the player is near a tree
+*/
 bool nearTree()
 {
-
 		Point3D currentPos = player->getPos();
 		currentPos.y = 0.0;
-		Point3D treePos = currentPos;
-		
+		Point3D treePos = currentPos;	
 
 		for(int i=-2; i < 3; i++){
 			for(int j=-2; j < 3; j++){
@@ -659,69 +665,42 @@ bool nearTree()
 					Point3D vecFromTree = VectorSub(currentPos, actualTreePos);
 					GLfloat distFromTree = Norm(vecFromTree);
 					if(distFromTree < hitBoxTree){
-						printf("hitTree");
 						return true;
 					}
 				}
 			}
 		}
-
-
-	return false;
-	
+	return false;	
 }
-
-void drawControl(int x, int z)
-{
-	glActiveTexture(GL_TEXTURE5);
-	glBindTexture(GL_TEXTURE_2D, controlTex);
-	glUniform1i(glGetUniformLocation(billBoardProgram, "tex1"), 5);
-
-	mat4 controlView = T(x, world->findHeight(x, z)+ 0.7, z);
-	glUniformMatrix4fv(glGetUniformLocation(billBoardProgram, "camMatrix"), 1, GL_TRUE, player->getCamMatrix().m);
-	glUniformMatrix4fv(glGetUniformLocation(billBoardProgram, "mdlMatrix"), 1, GL_TRUE, controlView.m);
-	DrawModel(control, billBoardProgram, "inPosition",  NULL, "inTexCoord"); //TODO: put NULL instead of "inNormal" here to make it work..
-
-
-}
-
-
 
 void init(void)
 {
 
 	GLenum err = glewInit();
-
 	//glutReshapeWindow(screenX,screenY);
 	glutFullScreen();
 	glutSetCursor(GLUT_CURSOR_NONE);
 
-
 	// GL inits
 	glClearColor(0.2,0.2,0.5,0);
 	glEnable(GL_DEPTH_TEST); 
-	glDisable(GL_CULL_FACE);
-	
-	
+	glDisable(GL_CULL_FACE);	
 	glAlphaFunc(GL_GREATER, 0.0f);
 	
 	printError("GL inits");
 
 	projectionMatrix = frustum(left,right, bottom, top, near, far);
 
-
-	for(int i = 0; i<256; i++){
-		for(int j = 0; j<256; j++){
+	for(int i = 0; i<256; i++)
+	{
+		for(int j = 0; j<256; j++)
+		{
 			randXZ->xz[i][j].x=-9999.0;
 			randXZ->xz[i][j].z=-9999.0;
 		}
-
 	}
 
-	
-	
-	
-	// Load and compile shader
+	// Load and compile shaders
 	program = loadShaders("terrain.vert", "terrain.frag");
 	billBoardProgram = loadShaders("billBoardShader.vert", "billBoardShader.frag");
 	skyProgram = loadShaders("skyShader.vert", "skyShader.frag");
@@ -729,34 +708,38 @@ void init(void)
 	printError("init shader");
 	
 	glUniformMatrix4fv(glGetUniformLocation(program, "projMatrix"), 1, GL_TRUE, projectionMatrix.m);
-	
-	
-	glUniform1i(glGetUniformLocation(program, "tex1"), 0); // Texture unit 0
+
+	//Load textures for terrain
+	glUniform1i(glGetUniformLocation(program, "tex1"), 0);
 	LoadTGATextureSimple("mygrass.tga", &tex1);
 	LoadTGATextureSimple("newterrain.tga", &tex2);
 	LoadTGATextureSimple("ok1.tga", &tex3);
 	LoadTGATextureSimple("water0hk.tga", &tex4);
 	
-// Load terrain data
-	
+// Load terrain data and init player and world	
 	LoadTGATexture("ownterrain.tga", &ttex);
 	world = new World(&ttex);
 	player = new Player(p,l,world);
 	tm = world->GenerateTerrain();
 
-	for(int i=0; i<254; i++){
-		for(int j=0; j<254; j++){
-			if(world->findHeight(i,j) < 0.5){
+	//There shouldn't be trees in the water
+	for(int i=0; i<254; i++)
+	{
+		for(int j=0; j<254; j++)
+		{
+			if(world->findHeight(i,j) < 0.5)
+			{
 				
 				posIsTree[i][j]=false;
 			}
-			else{
+			else
+			{
 				posIsTree[i][j]=true;
 			}
-
 		}
 	}
 
+	//Load models and textures
 	glUseProgram(billBoardProgram);
 	glUniformMatrix4fv(glGetUniformLocation(billBoardProgram, "projMatrix"), 1, GL_TRUE, projectionMatrix.m);
 	bill = billboardModel();
@@ -768,11 +751,11 @@ void init(void)
 	LoadTGATextureSimple("tree.tga", &treeTex);
 	LoadTGATextureSimple("control.tga", &controlTex);
 	LoadTGATextureSimple("compass.tga", &compassTex);
-	//mapTex = LoadBMPTexture("map.bmp", 1024, 1024); 
 	LoadTGATextureSimple("mapcourse.tga", &mapTex);
 	LoadTGATextureSimple("punsh.tga", &punshTex);
 	LoadTGATextureSimple("goal.tga", &goalTex);
-	
+
+	//Load skybox
 	glUseProgram(skyProgram);
 	glUniformMatrix4fv(glGetUniformLocation(skyProgram, "projMatrix"), 1, GL_TRUE, projectionMatrix.m);
 	sky = LoadModelPlus("skybox.obj");
@@ -822,16 +805,15 @@ void display(void)
 	
 
 	// clear the screen
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	
-	mat4 total, modelView, translate;
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	
 	
 	printError("pre display");
 
-		modelView= IdentityMatrix();
+	mat4 total, modelView, translate;
+	modelView= IdentityMatrix();
 
 
-//Sky box
+	//Draw Sky box
 
 	glUseProgram(skyProgram);
 	glDisable(GL_DEPTH_TEST);
@@ -860,10 +842,7 @@ void display(void)
 	glUseProgram(program);
 
 
-	// Build matrix
-	
-
-
+	//Draw world
 	glUniformMatrix4fv(glGetUniformLocation(program, "mdlMatrix"), 1, GL_TRUE, modelView.m);
 	glUniformMatrix4fv(glGetUniformLocation(program, "camMatrix"), 1, GL_TRUE, player->getCamMatrix().m);
 	
@@ -878,6 +857,8 @@ void display(void)
 	glUniform1i(glGetUniformLocation(program, "tex3"), 3);
 	DrawModel(tm, program, "inPosition", "inNormal", "inTexCoord");
 
+
+	//Draw trees
 	glUseProgram(billBoardProgram);
 	glEnable(GL_ALPHA_TEST);
 	glActiveTexture(GL_TEXTURE4);
@@ -892,28 +873,26 @@ void display(void)
 				DrawBillboard(bill,x,z,modelView);
 			}
 		}
-	}
+	}	
 
-	
-
+	//Draw controls
 	drawControl(110,72);
 	drawControl(50,151);
 	drawControl(106,233);
 	drawControl(179,103);
 	drawControl(226,111);
 	
-
-	
+	//Draw map
 	glActiveTexture(GL_TEXTURE6);
 	glBindTexture(GL_TEXTURE_2D, mapTex);
 	glUniform1i(glGetUniformLocation(billBoardProgram, "tex1"), 6);
-
 
 	if(showMap)
 	{
 			DrawMap(map,compass,modelView); 
 	}
 
+	//Check if near control
 	if(player->getPunshedControls() <=4){
 		glActiveTexture(GL_TEXTURE7);
 		glBindTexture(GL_TEXTURE_2D, punshTex);
@@ -938,8 +917,6 @@ void display(void)
 
 	}
 	glDisable(GL_ALPHA_TEST);
-
-
 	
 	glutSwapBuffers();
 	
@@ -947,8 +924,7 @@ void display(void)
 
 void timer(int i)
 {
-	glutTimerFunc(20, &timer, i);
-	
+	glutTimerFunc(20, &timer, i);	
 	
 	glutPostRedisplay();
 }

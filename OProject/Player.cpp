@@ -172,14 +172,13 @@ void Player::goBackwards(void)
 
 void Player::mouseLook(GLfloat xdiff,GLfloat ydiff)
 {
-Point3D upVec = vec3(0,1,0); //vector uppåt i planet
-	
-Point3D lookVec = Normalize(VectorSub(look, pos)); //vector till "synplanet"
-Point3D rightVec = Normalize(CrossProduct(upVec, lookVec));  //vector till höger i synplanet
-upVec = Normalize(CrossProduct(rightVec, lookVec)); //ny vector uppåt i synplanet
-look = VectorAdd(pos, lookVec);
-look = VectorAdd(look, ScalarMult(rightVec, xdiff));
-look = VectorAdd(look, ScalarMult(upVec, ydiff));
+	Point3D upVec = vec3(0,1,0); //vector uppåt i planet	
+	Point3D lookVec = Normalize(VectorSub(look, pos)); //vector till "synplanet"
+	Point3D rightVec = Normalize(CrossProduct(upVec, lookVec));  //vector till höger i synplanet
+	upVec = Normalize(CrossProduct(rightVec, lookVec)); //ny vector uppåt i synplanet
+	look = VectorAdd(pos, lookVec);
+	look = VectorAdd(look, ScalarMult(rightVec, xdiff));
+	look = VectorAdd(look, ScalarMult(upVec, ydiff));
 }
 
 void Player::setOldSpeed(Point3D newOldSpeed)
