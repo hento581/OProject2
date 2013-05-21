@@ -19,8 +19,6 @@ World::World(TextureData* texture){
 	controls[4][2] = 103;
 	controls[5][1] = 226;
 	controls[5][2] = 111;
-	
-
 
 }
 
@@ -29,6 +27,9 @@ World::~World(void)
 {
 }
 
+/*
+Finds the normal of a position
+*/
 Point3D World::findNormal(int x, int z, GLfloat *vertexArray)
 {
 	Point3D edge=vec3(0,1,0);
@@ -66,6 +67,9 @@ Point3D World::findNormal(int x, int z, GLfloat *vertexArray)
 	return Nres;
 }
 
+/*
+ Generates the terrain
+*/
 Model* World::GenerateTerrain()
 {
 	int vertexCount = this->tex->width * this->tex->height;
@@ -124,6 +128,9 @@ Model* World::GenerateTerrain()
 	return m;
 }
 
+/*
+ Interpolates
+*/
 GLfloat World::interpolate(Point3D P, Point3D A, Point3D B, Point3D C)
 {
 	Point3D N,N1,N2;
@@ -149,6 +156,9 @@ GLfloat World::interpolate(Point3D P, Point3D A, Point3D B, Point3D C)
 	return A.y - (N.x*(P.x - A.x) + N.z*(P.z-A.z))/N.y;
 } 
 
+/*
+ Checks if a points is inside the triangle given by three points
+*/
 int World::insideTriangle(Point3D P, Point3D A, Point3D B, Point3D C)
 {
 	Point3D v0,v1,v2; 
@@ -175,6 +185,9 @@ int World::insideTriangle(Point3D P, Point3D A, Point3D B, Point3D C)
 	return 0;
 } 
 
+/*
+ Finds the height of a x-z position
+*/
 GLfloat World::findHeight(GLfloat x, GLfloat z)
 {
 	int x1, z1, x2, z2;
@@ -216,6 +229,9 @@ GLfloat World::findHeight(GLfloat x, GLfloat z)
 
 }
 
+/*
+ Gets the position of a certain control
+*/
 Point3D World::getControlPos(int controlNumber)
 {
 	Point3D controlPos = vec3(controls[controlNumber+2][1],0,controls[controlNumber+2][2]);

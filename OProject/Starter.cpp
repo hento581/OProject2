@@ -45,20 +45,6 @@ GLfloat mapAngle=0.0;
 bool jumping = false;
 
 
-
-//För gravitation
-/*GLfloat lastHeight = -999.0;
-GLfloat gravSpeed = 0.3;
-GLfloat gravitation = 0.0982/100.0;
-GLfloat inAirTime = 0.0;
-bool inAir = false;*/
-
-/*//För jump
-
-GLfloat jumpSpeed = 1.0/5.0;
-GLfloat jumpTime = 0.0;
-GLfloat maxJumpTime = 15.0;*/
-
 //För skärmen
 GLfloat screenX = 800.0;
 GLfloat screenY = 600.0;

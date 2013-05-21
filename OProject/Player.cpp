@@ -23,6 +23,9 @@ Player::~Player(void)
 {
 }
 
+/*
+ Returns true if the player is in the proximity of the next control
+*/
 bool Player::isNextControl()
 {
 	Point3D tempPos = pos;
@@ -32,20 +35,28 @@ bool Player::isNextControl()
 	return false;
 }
 
+/*
+	Sets the position for the next control
+*/
 void Player::setNextControl(vec3 newNextControl)
 {
 	nextControl = newNextControl;
 	punshedControls++;
 }
 
+/*
+ Returns the number of controls the player has punshed
+*/
 int Player::getPunshedControls()
 {
 	return punshedControls;
 }
 
+/*
+ Updats the players height-position
+*/
 void Player::heightUpdate(void)
 {
-	// this->zspeed = this->zspeed - T*g; //TODO: fixa konstanter samt kollisionshantering med mark.
 	Point3D oldPos = pos;
 	Point3D oldLook = look;
 	pos.y = pos.y + yspeed;
@@ -72,19 +83,28 @@ void Player::heightUpdate(void)
 	}
 }
 
+/*
+	Tells the player to jump
+*/
 void Player::jump(void)
 {
 	if(pos.y - w->findHeight(pos.x,pos.z) <0.2 && pos.y - w->findHeight(pos.x,pos.z) >-0.2)
 		yspeed = 0.3f;
 }
 
+/*
+ Returns the cam matrix
+*/
 mat4 Player::getCamMatrix(void)
 {
 	Point3D up = vec3(0.0f, 1.0f, 0.0f);
-	Point3D camDiff = vec3(0.0f, 2.0f, 0.0f); //TODO: Inte så snyggt... 2.0 konstant mm...
+	Point3D camDiff = vec3(0.0f, 2.0f, 0.0f); 
 	return lookAtv(VectorAdd(pos,camDiff), VectorAdd(look,camDiff), up);
 }
 
+/*
+ Walks the player forward
+*/
 void Player::goForward(void)
 {
 	if(pos.y - w->findHeight(pos.x,pos.z) <0.1 && pos.y - w->findHeight(pos.x,pos.z) >-0.1)
@@ -93,20 +113,9 @@ void Player::goForward(void)
 		Point3D move = VectorSub(this->look, this->pos);
 		Point3D oldPos = pos;
 		Point3D oldLook = look;
-		//Point3D normal = w->findNormal(pos.x,pos.z,w->getModel()->vertexArray);
 		move.y = 0;
 		move= Normalize(move);
-		/*GLfloat temp = DotProduct(move,normal);
-		printf("%f", temp);
-		printf(" ");
-		move = VectorAdd(move,ScalarMult(move, DotProduct(move,normal)*abs(DotProduct(move,normal))));
-		GLfloat speed = 0.2*(Norm(move)+4*Norm(oldSpeed))*0.2;  //TODO: fix speed!
-		move = ScalarMult(Normalize(move), speed); //TODO: set variable instead of numerica value
-		oldSpeed = move;
-		pos = VectorAdd(0.01*move, pos);
-		look = VectorAdd(0.01*move, look);*/
-
-
+		
 			if(this->hitTree == 0)
 			{
 				for(int i = 1; i<=10; i++)
@@ -115,11 +124,8 @@ void Player::goForward(void)
 						look = VectorAdd(ScalarMult(move,0.01+turbo), look);
 						if(w->findHeight(pos.x,pos.z) >= h+0.03)
 							i=30;
-				}
-			
-			}
-			
-		
+				}			
+			}		
 			else
 			{
 				this->hitTree--;
@@ -148,11 +154,13 @@ void Player::goForward(void)
 				pos = oldPos;
 				look = oldLook;
 				oldSpeed = vec3(0,0,0);
-			}
-			
-		
+			}		
 	}
 }
+
+/*
+ Sets the oldSpeed of player to {0,0,0}
+*/
 void Player::stop(void)
 {
 	if(pos.y - w->findHeight(pos.x,pos.z) <0.1 && pos.y - w->findHeight(pos.x,pos.z) >-0.1)
@@ -161,6 +169,9 @@ void Player::stop(void)
 	}
 }
 
+/*
+	Walks the player backwards, mostly for debugging
+*/
 void Player::goBackwards(void)
 {
 	Point3D move = VectorSub(this->pos, this->look);
@@ -170,6 +181,9 @@ void Player::goBackwards(void)
 	this->look = VectorAdd(move, this->look);
 }
 
+/*
+ Looks around according to the mouse
+*/
 void Player::mouseLook(GLfloat xdiff,GLfloat ydiff)
 {
 	Point3D upVec = vec3(0,1,0); //vector uppåt i planet	
@@ -181,6 +195,9 @@ void Player::mouseLook(GLfloat xdiff,GLfloat ydiff)
 	look = VectorAdd(look, ScalarMult(upVec, ydiff));
 }
 
+/*
+ Sets the oldSpeed
+*/
 void Player::setOldSpeed(Point3D newOldSpeed)
 {
 	oldSpeed = newOldSpeed;
