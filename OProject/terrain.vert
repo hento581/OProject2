@@ -9,7 +9,6 @@ out vec3 outPosition;
 out vec3 exSurface;
 
 
-// NY
 uniform mat4 projMatrix;
 uniform mat4 camMatrix;
 uniform mat4 mdlMatrix;

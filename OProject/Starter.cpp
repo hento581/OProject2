@@ -108,7 +108,7 @@ Model* billboardModel(void)
 								1.0f,1.0f,
 								0.0f,1.0f};
 
-	GLuint indexArray[] = { 0,1,2,1,2,3};
+	GLuint indexArray[] = { 0,2,1,1,2,3};
 
 	Model* m = LoadDataToModel(
 			vertexArray,
@@ -195,7 +195,7 @@ Model* mapModel(void)
 								0.0f,1.0f,
 								1.0f,1.0f};
 
-	GLuint indexArray[] = { 0,1,2,1,2,3};
+	GLuint indexArray[] = { 0,2,1,1,2,3};
 
 	Model* m = LoadDataToModel(
 			vertexArray,
@@ -230,7 +230,7 @@ Model* compassModel(void)
 								1.0f,1.0f,
 								0.0f,1.0f};
 
-	GLuint indexArray[] = { 0,1,2,1,2,3};
+	GLuint indexArray[] = { 0,2,1,1,2,3};
 
 	Model* m = LoadDataToModel(
 			vertexArray,
@@ -265,7 +265,7 @@ Model* punshModel(void)
 								0.0f,1.0f,
 								1.0f,1.0f};
 
-	GLuint indexArray[] = { 0,1,2,1,2,3};
+	GLuint indexArray[] = { 0,2,1,1,2,3};
 
 	Model* m = LoadDataToModel(
 			vertexArray,
@@ -670,7 +670,7 @@ void init(void)
 	// GL inits
 	glClearColor(0.2,0.2,0.5,0);
 	glEnable(GL_DEPTH_TEST); 
-	glDisable(GL_CULL_FACE);	
+	glEnable(GL_CULL_FACE);
 	glAlphaFunc(GL_GREATER, 0.0f);
 	
 	printError("GL inits");
@@ -862,12 +862,13 @@ void display(void)
 	}	
 
 	//Draw controls
+	glDisable(GL_CULL_FACE);
 	drawControl(110,72);
 	drawControl(50,151);
 	drawControl(106,233);
 	drawControl(179,103);
 	drawControl(226,111);
-	
+	glEnable(GL_CULL_FACE);
 	//Draw map
 	glActiveTexture(GL_TEXTURE6);
 	glBindTexture(GL_TEXTURE_2D, mapTex);

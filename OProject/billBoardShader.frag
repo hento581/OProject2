@@ -1,6 +1,6 @@
 #version 150
 
-// Set-to-white
+
 
 out vec4 outColor;
 in vec2 texCoord;
